@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{{Department of English Language and Literature}(2014)}]{ell-ht-format}
+{Department of English Language and Literature}. 2014.
+\newblock The honours thesis (english language).
+\newblock URL: \url{http://www.fas.nus.edu.sg/ell/download/Undergraduate/Format_EL_AY2014-15.pdf}.
+
+\end{thebibliography}

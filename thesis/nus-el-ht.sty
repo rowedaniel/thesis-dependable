@@ -1,0 +1,119 @@
+% Adapted by Derek Lim (2016) from cccomps.sty, a style file to format Carleton College comps papers by Andrew Gainer-Dewar (2013). 
+% This work is licensed under the Creative Commons Attribution 4.0 International Licence.
+% To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+\ProvidesPackage{nus-el-ht}
+
+%% LOAD SUPPORTING PACKAGES
+
+% As stipulated in the EL HT formatting guidelines.
+\RequirePackage{geometry}
+\geometry{a4paper, margin=1.4in}
+
+% We should support UTF-8 in the input file (since it is the twenty-first century, after all)
+\RequirePackage[utf8]{inputenc}
+
+% Output encoding for accented characters and hyphenation. 
+\RequirePackage[T1]{fontenc}
+\RequirePackage[american]{babel}
+
+% The microtype package fixes a lot of small typographical things. They're hard to see, but your eyes will thank you!
+\RequirePackage{microtype}
+
+% The graphicx package is used for handling graphics and colors.
+\RequirePackage{graphicx}
+
+% The enumerate package is used to enhance enumerated lists
+\RequirePackage{enumerate}
+
+% The amsthm package lets us set up theorem-like environments
+\RequirePackage{amsthm}
+
+% The mathtools and amssymb packages provide some important mathematical support
+\RequirePackage{mathtools,amssymb}
+
+% The mathtools package provides facilities for many mathematical tasks.
+% In particular, it sets up nice commands for formatting braces.
+\DeclarePairedDelimiter{\pbrac}{(}{)}
+\DeclarePairedDelimiter{\sbrac}{[}{]}
+\DeclarePairedDelimiter{\cbrac}{\{}{\}}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+% The booktabs package facilitates high-quality table formatting.
+\RequirePackage{booktabs}
+
+%% DEFINE COMMANDS
+
+% We define new titling commands
+\newcommand{\supervisor}[1]{\gdef\@supervisor{#1}}
+\newcommand{\dept}[1]{\gdef\@dept{#1}}
+\newcommand{\degree}[1]{\gdef\@degree{#1}}
+\newcommand{\faculty}[1]{\gdef\@faculty{#1}}
+
+%% CONFIGURE LAYOUTS
+% First, we configure the title page.
+\renewcommand{\maketitle}{
+  \null
+  \thispagestyle{empty}
+  \vspace*{\fill}
+  \begin{center}
+    {\HUGE\bfseries\boldmath\@title} \\
+    \vspace{1.0in}
+    {\Large An Honours Thesis \\}
+    \vspace{0.3in}
+    {\Large submitted in partial
+fulfilment of the requirements for the degree of \\ \@degree {} in \@dept \\}
+    \vspace{0.3in}
+    {\Large presented to \\ the \@faculty \\ Lewis \& Clark College \\ \@supervisor, Supervisor \\}
+    \vspace{0.9in}
+    {\Large by \\ \begin{tabular}[t]{c} \@author \end{tabular} \\}
+    \vspace{0.9in}
+    {\Large \@date}
+  \end{center}
+  \vspace*{\fill}
+  \null
+  \cleardoublepage
+
+% Next, we create a page for the declaration required by the department in their formatting guidelines. Don't forget to sign!
+\null 
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+{\Large This Honours Thesis represents my own work and due acknowledgement is given whenever information is derived from other sources. No part of this Honours Thesis has been or is being concurrently submitted for any other qualification at any other university.} % TODO: do I want/need this?
+\noindent\begin{tabular}{l}
+\\[8ex] 
+\Large Signed: \makebox[2.5in]{\hrulefill} \\
+\end{tabular}
+\end{center}
+\vspace*{\fill}
+\null 
+\cleardoublepage 
+
+}
+
+% The memoir document type has its own default styles. We configure the chapter style and renew the abstract command, so that the abstract sits on its own page.
+\chapterstyle{verville}
+\renewenvironment{abstract}{\chapter{Abstract}}{\cleardoublepage}
+
+% Memoir only numbers down to sections by default. We need to go deeper.
+\setsecnumdepth{subsubsection}
+
+% Here, I reproduce commands from sp.cls for citation formatting (http://info.semprag.org/basics). 
+\RequirePackage{natbib}
+	\bibpunct[: ]{(}{)}{,}{a}{}{,}
+	\newcommand{\BIBand}{\&}
+	\setlength{\bibsep}{0pt}
+	\setlength{\bibhang}{0.25in}
+	\bibliographystyle{sp}
+    \newcommand{\posscitet}[1]{\citeauthor{#1}'s (\citeyear{#1})}
+    \newcommand{\possciteauthor}[1]{\citeauthor{#1}'s}
+    \newcommand{\pgposscitet}[2]{\citeauthor{#1}'s (\citeyear{#1}:~#2)}
+    \newcommand{\secposscitet}[2]{\citeauthor{#1}'s (\citeyear{#1}:~$\S$#2)}
+    \newcommand{\pgcitealt}[2]{\citealt{#1}:~#2}
+    \newcommand{\seccitealt}[2]{\citealt{#1}:~$\S$#2}
+    \newcommand{\pgcitep}[2]{(\citealt{#1}:~#2)}
+    \newcommand{\seccitep}[2]{(\citealt{#1}:~$\S$#2)}
+    \newcommand{\pgcitet}[2]{\citeauthor{#1} (\citeyear{#1}:~#2)}
+    \newcommand{\seccitet}[2]{\citeauthor{#1} (\citeyear{#1}:~$\S$#2)}
