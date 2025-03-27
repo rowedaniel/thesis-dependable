@@ -1,0 +1,56 @@
+
+Sections:
+
+Title
+Abstract
+Table of Contents (Generated automatically)
+
+Intro:
+	A) Background
+		- Following along with SeL4 methodology
+		- What is a network stack?
+		- How does SeL4 work (Made mock-up examples of how to use SeL4)?
+		- Provide formal definitions (notations) for refinement, Hoare triples, big step and small step semantics. Decide on consistent notation. What is the upper case gamma and what are the different rotations of turn styles?
+	B) Goals:
+		- Ultimate goal: verify the entire network stack.
+		- Daniel's goal: Have an invariant saying the abstract spec send and receive compose to the identify function. I.e. if you take any packet and send via UDP then receive using UDP you have the same packet. Assumption we need to make is that everything underneath the UDP layer works perfectly including hardware. Reasonable to assume that all of our sofware below the UDP layers works perfectly - eventually that will be a proof, not an assumption. Axiomatization. Big assumption: hardware works perfectly. No packets are dropped or corrupted, will be received exactly as they were sent. As we continue, we will want to relax that assumption. Prove that software  deals with problems such as lost or corrupted packets as well as possible.
+
+Main text:
+
+- Tools
+	1) Hoare logic / Hoare triples
+	2) Reading refinement book: process of proving that abstract and design specs are same (any more concrete spec would be same). (Should this go in Background or main text as research?)
+	3) Isabelle
+
+- Proof architecture
+	- Basic proof framework: How do you prove your implementation correct? You write an abstract specification. Might prove some desirable qualities about it. E.g. if I send a UDP packet and receive the same one, the data should be the same. Now we know what the proof would look like: design spec, abstract spec, C spec.
+
+	- Basic flow of specficiations and refinement.
+
+	- Follow SeL4-proof methodology.
+
+	- C to Simpl conversion: Installed software that lets you convert your C code to Simpl which is a more formally defined declarative language that is easier to prove things about. Ideally we would get the UDP spec going down to that level.
+
+- Specifications
+	- UDP abstract specification for send (not receive; written by Alain). This might not work with the design spec. Redo it.
+
+	- Create UDP abstract spec for receive.
+
+	- Create an IP abstract specification, but done incorrectly and has to be scrapped.
+
+	- UDP design specification for send and receive (future work, but hoping to do it)
+
+	- Proof that design spec refines the abstract spec.
+
+	- For an example abstract and design spec, get C code written and prove that the C code refines the design spec for UDP. (hoping to do in the next 2-3 weeks).
+
+- Future Work
+	- Make abstract and design specs for the other layers.
+	- Do the C conversion for the other layers.
+	- Show refinement for the other layers.
+	- Bring in SeL4 proofs.
+	- Relax assumptions. E.g. the hardware will always send all of your packets but not necessarily in the right order. "Always" requires some logic to talk about time. Will probaly want to bring in linear temporal logic to talk about that. We could use that to prove that if I send a packet on UDP it will always eventually be received by the target and will be the same packet.
+
+
+
+Appendix A. Installations
