@@ -54,6 +54,22 @@
       As a proof of concept, we are creating a networked fish tank thermometer
       with a complete IPv6 network stack and formally verifying all components.
 
+      \begin{itemize}
+          \item should be written for a more general audience
+          \item alternatively: provide an additional plain-language summary
+      \end{itemize}
+      The job of a microkernel (or operating system) is to share resources, including CPU time.
+      For a long time, it was thought that the operation of a microkernel was too complex for
+      any kind of formal verification in practice (concurrency makes this particularly tricky).
+      However, seL4 proved this wrong by creating and verifying the seL4 microkernel.
+      What we're trying to do is make a fully-fledged application that is proven from the bottom to the top.
+      Our overarching hypothesis is that this is possible.
+      For this thesis, we narrow the scope to just consider a piece of the networking stack (the UDP layer), and working on the verification for that piece.
+      In order to do this, we must formally define how we expect the UDP layer to work,
+      defining which behaviors are acceptable and which are not.
+      Subsequently, we must show that our implementation in fact conforms to these expectations.
+
+
 \end{abstract}
 
 \tableofcontents
@@ -68,47 +84,148 @@
 
 \chapter{Introduction}
 
-This is a chapter.
 
-\section{Overview}
+\section{Background}
 
-You can embed sections and subsections.
+\subsection{seL4}
 
-\subsection{Research Question}
+\subsection{Network stack}
 
-Is `\LaTeX' pronounced \phonet{let\super hEk\super h} or \phonet{lat\super hEk\super h}?
+\subsection{Notation} % maybe combine with the tools section?
+\begin{itemize}
+    \item refinement
+    \item Hoare triples
+    \item big and small step semantics
+    \item $\Gamma$
+\end{itemize}
+
+\section{Goals}
+\begin{itemize}
+    \item ultimately, verify entire network stack
+    \item for now, invariant for abstract UDP saying wrap and unwrap compose to identity function.
+\end{itemize}
+
+\subsection{Simplifying assumptions}
+\begin{itemize}
+    % \item all layers below UDP work (prove this later)
+    % \item hardware assumptions.
+    %     \begin{itemize}
+    %         \item no packets dropped
+    %         \item no packets corrupted
+    %         \item packets are received in the order they are sent
+    %     \end{itemize}
+    \item UDP doesn't care about correct execution of other layers---it should work correctly within its layer
+    \item suppress other layers for now
+    \item this means we can treat our code as running contiguously without state changes coming from external events (this will have to be dealt with more carefully when other layers are introduced and we have more PDs).
+        Treat UDP wrap as running uninterrupted until completion.
+        We have access to all our memory also, and will not trap or fault on memory access.
+\end{itemize}
+
+\chapter{Our Work}
+
+\section{Tools}
+
+\begin{itemize}
+    \item Hoare logic / Hoare triples
+    \item refinement book
+    \item isabelle
+    \item seL4 stuff (nondeterministic monads, corres, c-parser?)
+\end{itemize}
+
+\section{Proof architecture}
+How do you prove your implementation correct?
+
+\subsection{Specifications}
+\begin{itemize}
+    \item UDP abstract spec send
+    \item UDP abstract spec recv
+    \item UDP design spec send
+    \item UDP design spec recv
+\end{itemize}
+
+\subsection{Refinement}
+\begin{itemize}
+    \item Use the refinement book's notation?
+        \begin{itemize}
+            \item normal variables $\vec{x}$ 
+            \item representation variables $\vec{a}$ 
+            \item programs $P(\mathcal{A})$ and $P(\mathcal{C})$
+            \item refinement is that
+                 $CI; P(\mathcal{C}); CF \subseteq AI; P(\mathcal{A}); AF$
+             % \item \begin{tikzpicture}
+             %         \node (AI) {$AI$ }
+             %         \node (PA) {$P(\mathcal{A})$ }
+             %         \node (AF) {$AF$ }
+             %     \end{tikzpicture}
+                 
+        \end{itemize}
+    \item show that design spec refines abstract spec
+\end{itemize}
+
+\subsection{Convert C to Simpl}
+
+\chapter{A Day in the Life of}
+\begin{itemize}
+    \item some isabelle guidelines
+\end{itemize}
+
+\chapter{Future Work}
+\begin{itemize}
+    \item Make abstract and design specs for other layers
+    \item c conversion for other layers
+    \item c conversion for UDP?
+    \item refinement for other layers
+    \item seL4 proofs (specifically, PD stuff)
+    \item introduce hardware problems
+        \begin{itemize}
+            \item think of this as relaxing assumptions about hardware
+            \item e.g. packets won't be corrupted, but could arrive in weird orders
+            \item note that there's probably a limit to this,
+                since a packet could randomly corrupt to
+                look completely legit---it's just very
+                unlikely with all the error correction
+                going on.
+                Thus, we could model this by, e.g.,
+                saying that only a limited arbitrary subset
+                of the packet can be corrupted;
+                or by saying any part of the packet other
+                than the CRC can be corrupted.
+                Pros/cons to each.
+        \end{itemize}
+    \item introduce linear temporal logic to have some ``always eventually''-type stuff
+\end{itemize}
 
 
-\section{Trees and Glosses}
-
-Packages have documentation that explain (among other things) how to implement them. These are brief implementation examples for \texttt{expex} and \texttt{tikz-qtree}. 
-
-Glossed examples data can be presented like in (\ref{ex:missile}) below.
-
-\ex\label{ex:missile}
-\begingl
-\gla Missile cannot anyhow tzua one. //
-\glb Missile cannot carelessly fire \textsc{attr} //
-\glft `Missiles should not be carelessly fired.' //
-\endgl
-\xe
-
-A syntax tree can be presented and labelled as a figure, as with Figure \ref{fig:ticket-topic} below. 
-
-\begin{figure}[h!]
-\caption{Deriving `Ticket you got?' through topicalization}
-\centering
-\begin{tikzpicture}[scale=0.75]
-\Tree [.S$'$ \node(x){\qroof{ticket}.NP }; [.S $\emptyset$ [.VP {\qroof{you}.NP } [.V$'$ [.V got ] \node(y){t}; ] ] ] ]
-\draw[semithick, <-] (x.south)..controls +(south:5) and +(south:3)..(y.south);
-\end{tikzpicture}
-\label{fig:ticket-topic}
-\end{figure}
+% \section{Trees and Glosses}
+%
+% Packages have documentation that explain (among other things) how to implement them. These are brief implementation examples for \texttt{expex} and \texttt{tikz-qtree}. 
+%
+% Glossed examples data can be presented like in (\ref{ex:missile}) below.
+%
+% \ex\label{ex:missile}
+% \begingl
+% \gla Missile cannot anyhow tzua one. //
+% \glb Missile cannot carelessly fire \textsc{attr} //
+% \glft `Missiles should not be carelessly fired.' //
+% \endgl
+% \xe
+%
+% A syntax tree can be presented and labelled as a figure, as with Figure \ref{fig:ticket-topic} below. 
+%
+% \begin{figure}[h!]
+% \caption{Deriving `Ticket you got?' through topicalization}
+% \centering
+% \begin{tikzpicture}[scale=0.75]
+% \Tree [.S$'$ \node(x){\qroof{ticket}.NP }; [.S $\emptyset$ [.VP {\qroof{you}.NP } [.V$'$ [.V got ] \node(y){t}; ] ] ] ]
+% \draw[semithick, <-] (x.south)..controls +(south:5) and +(south:3)..(y.south);
+% \end{tikzpicture}
+% \label{fig:ticket-topic}
+% \end{figure}
 
 
 % If you want to include appendices, just use the \appendix command and then make chapters as normal
 \appendix
-\chapter{Your first appendix}
+\chapter{Installation notes}
 
 See \url{https://www.overleaf.com/read/qyhckhfyfvmb} on Overleaf for useful examples of formatted text, typing in IPA, etc.
 
