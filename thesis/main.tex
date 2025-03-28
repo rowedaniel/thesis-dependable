@@ -13,15 +13,36 @@
 \expandafter\def\expandafter\quote\expandafter{\quote\singlespacing}
 	\doublespacing
 
-% Linguistics-specific packages.
-% For typing IPA.
-\usepackage{tipa} 
-	\newcommand{\phonem}[1]{\textipa{/#1/}}
-	\newcommand{\phonet}[1]{\textipa{[#1]}}
-% For drawing syntax trees.
-\usepackage{qtree}\usepackage{tikz} 
-\usepackage{tikz-qtree}
-	\tikzset{every tree node/.style={align=center,anchor=north}}
+% tikz stuff
+\usepackage[usenames,dvipsnames]{color}    
+\usepackage[table]{xcolor}
+\usepackage{themecolors}
+\usepackage{tikz} 
+\usetikzlibrary{positioning, shapes.multipart, arrows, shadows, backgrounds, fit}
+
+% code blocks
+\usepackage{listings}
+\lstdefinelanguage{isabelle}{%
+    keywords=[1]{type_synonym,datatype,fun,abbreviation,definition,proof,lemma,theorem},
+    keywordstyle=[1]\bfseries\color{isabelleouterblue},
+    keywords=[2]{where,assumes,shows,and},
+    keywordstyle=[2]\bfseries\color{isabelleoutergreen},
+    keywords=[3]{if,then,else,case,of,SOME,let,in,O},
+    keywordstyle=[3]\color{isabelleinnerblue},
+    keywords=[4]{apply, by, done},
+    keywordstyle=[4]\color{isabelleoutersalmon},
+}
+\lstset{%
+  language=isabelle,
+  escapeinside={&}{&},
+  columns=fixed,
+  extendedchars,
+  basewidth={0.5em,0.45em},
+  basicstyle=\ttfamily,
+  mathescape,
+}
+
+
 % For typesetting and labelling examples, incl. glossed examples. 
 \usepackage{expex} 
 	\lingset{Everyex=\singlespace}
@@ -87,10 +108,95 @@
 
 \section{Background}
 
-\subsection{seL4}
+This project sits within a larger body of work by seL4 (TODO: citation needed) and K{\"a}gi (citation needed).
+Specifically, some exposition is needed to clarify the process of
+formal verification, as well as describe the network stack.
+The end goal of this project is to produce a fully functional
+networked temperature sensor which records data from a fish tank,
+and sends that data over the network where it will be recorded externally.
+Furthermore, the goal is to formally show that all software in the
+thermometer works correctly, without any bugs or flaws that could cause
+it to break or report incorrect data (barring physical malfunctions of the hardware).
 
 \subsection{Network stack}
+Key to a networked temperature sensor is the code responsible for networking---communicating over the internet to other devices.
+The standard protocol for network communication is defined in
+a variety of RFC and IEEE specifications.
+While most of the details are beyond the scope of this paper
+(though not the project as a whole), the basic architecture merits some
+discussion.
 
+The Open Systems Interconnection (OSI) model describes the standard
+implementation of the network stack, for use in communication between
+devices.
+The network stack is divided into logical layers.
+Each layer has a plain-language specification
+consisting of either a Request For Comment (RFC) or an IEEE document
+that describes the standard interface for interacting with that layer.
+At a minimum, each layer contains a \textit{wrap} and an \textit{unwrap}
+endpoint, though IP and UDP in particular require more functionality.
+As such, we can think of the network stack as a series of composable
+encoders and decoders,
+where the call to decode a packet might look like
+\lstinline{udp_unwrap(ip_unwrap(eth_unwrap(hardware_packet)))}.
+
+If everything works perfectly, then after a packet is encoded
+and sent over the physical transmission medium, decoding it should
+result in the same packet, unaltered.
+One of the principal design features of the OSI model is that since
+it is layered, this statement need only apply within a particular layer.
+That is, we expect that if we call
+\lstinline{y := udp_wrap(x)}, then \lstinline{udp_wrap(y)} should
+result in exactly the initial packet \lstinline{x}.
+% TODO: is this notation understandable?
+
+\begin{figure}[htpb]
+    \centering
+    \begin{tikzpicture}[node distance=4cm]
+        % styles
+        \tikzstyle{cell} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black]
+        \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+        \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+
+        % wrap
+        \node (app_wrap) [cell, fill=application!80] {Application on Computer A};
+        \node (udp_wrap) [cell, fill=udp!80, below=30pt of app_wrap] {UDP wrap};
+        \node (ip_wrap) [cell, fill=ip!80, below=30pt of udp_wrap] {IP wrap};
+        \node (ethernet_wrap) [cell, fill=ethernet!80, below=30pt of ip_wrap] {Ethernet wrap};
+        \node (hardware_wrap) [cell, fill=hardware!80, below=30pt of ethernet_wrap] {Hardware};
+
+        % unwrap
+        \node (app_unwrap) [cell, fill=application!80, right=10pt of app_wrap] {Application on Computer B};
+        \node (udp_unwrap) [cell, fill=udp!80, below=30pt of app_unwrap] {UDP unwrap};
+        \node (ip_unwrap) [cell, fill=ip!80, below=30pt of udp_unwrap] {IP unwrap};
+        \node (ethernet_unwrap) [cell, fill=ethernet!80, below=30pt of ip_unwrap] {Ethernet unwrap};
+        \node (hardware_unwrap) [cell, fill=hardware!80, below=30pt of ethernet_unwrap] {Hardware};
+
+        % layers
+        \node[box, label={left:\rotatebox{90}{Higher-level}}, fit = (app_wrap) (app_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Transport}}, fit = (udp_wrap) (udp_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Network}}, fit = (ip_wrap) (ip_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Data Link}}, fit = (ethernet_wrap) (ethernet_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Physical}}, fit = (hardware_wrap) (hardware_unwrap)] (1) {};
+
+        % flow of information
+        \draw [arrow] (app_wrap) -- (udp_wrap);
+        \draw [arrow] (udp_wrap) -- (ip_wrap);
+        \draw [arrow] (ip_wrap) -- (ethernet_wrap);
+        \draw [arrow] (ethernet_wrap) -- (hardware_wrap);
+        \draw [arrow] (hardware_wrap) -- (hardware_unwrap);
+        \draw [arrow] (hardware_unwrap) -- (ethernet_unwrap);
+        \draw [arrow] (ethernet_unwrap) -- (ip_unwrap);
+        \draw [arrow] (ip_unwrap) -- (udp_unwrap);
+        \draw [arrow] (udp_unwrap) -- (app_unwrap);
+    \end{tikzpicture}
+
+    
+    \caption{A simplified OSI model, showing the wrap and unwrap components of each layer. Arrows show flow of data. Session, presentation, and application layers are combined into a single ``higher-level'' layer---these layers are unnecessary for our use-case of a simple thermometer.}
+    \label{fig:network-stack}
+\end{figure}
+
+\subsection{seL4}
 \subsection{Notation} % maybe combine with the tools section?
 \begin{itemize}
     \item refinement
