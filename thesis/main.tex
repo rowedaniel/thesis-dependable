@@ -196,6 +196,35 @@ result in exactly the initial packet \lstinline{x}.
 \end{figure}
 
 \subsection{seL4}
+
+TODO: look over seL4 paper and make this paragraph more correct:
+
+The seL4 microkernel (TODO: citation needed) is a verified microkernel
+that is performant and secure.
+SeL4 provides two important isolation abstractions: protection domains (PDs), which can be loosely described as an address spaces provides isolation from
+other processes,
+and memory regions, which are associated with a number of PDs which can write to or read from.
+
+For the purposes of this paper, we will operate under the assumption that
+the UDP layer exists in a completely isolated PD, meaning
+we disallow arbitrary (TODO: random?) changes to state by other processes;
+the only state changes that occur should be ones initiated by the UDP
+layer itself.
+In the broader picture of things, we plan to experiment with putting
+each layer in a separate PD,
+with shared memory regions between adjacent layers to facilitate transfer of data.
+In this case, the assumption that state will not be changed by outside processes
+need only be relaxed within those shared memory regions, where
+data can be written or read from either of the adjacent layers at any time.
+This case will necessitate some proof that the behaviors of the two layers
+do not interfere within this shared region.
+Standardizing information flow using a system of queues along with 
+communicating sequential processes (TODO: citation needed)
+will likely be useful in this case.
+
+TODO: could mention that putting them all into the same PD could make performance
+better, but proofs harder
+
 \subsection{Notation} % maybe combine with the tools section?
 \begin{itemize}
     \item refinement
