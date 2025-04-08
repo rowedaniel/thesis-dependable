@@ -228,9 +228,23 @@ better, but proofs harder
 \subsection{Notation} % maybe combine with the tools section?
 \begin{itemize}
     \item refinement
-    \item Hoare triples
-    \item big and small step semantics
-    \item $\Gamma$
+    \item Hoare triples (TODO: figure out right notation)
+        \[
+        \{|
+            \lambda s. 
+        |\}
+        .\] 
+
+    \item big semantics:
+        \[
+            (c,s) \Rightarrow t
+        \] 
+        means ``command $c$ starting from state $s$ results in state $t$.''
+    \item small step semantics
+    \item $\Gamma$? Not sure yet
+    \item $\top \equiv \lambda s. true$ and $\bot \equiv \lambda s. false$
+    \item $x \equiv y$ ``$x$ is defined as $y$''
+    \item $x:=y$ ``assign $x$ to $y$.''
 \end{itemize}
 
 \section{Goals}
