@@ -70,25 +70,44 @@
 
 \begin{abstract}
   % citations look like \citep{ell-ht-format}.
-        Prior work led to the first proven-reliable and viable microkernel, seL4.
-      We hypothesize that similar reliability is possible for a performant IoT device.
-      As a proof of concept, we are creating a networked fish tank thermometer
-      with a complete IPv6 network stack and formally verifying all components.
+      %   Prior work led to the first proven-reliable and viable microkernel, seL4.
+      % We hypothesize that similar reliability is possible for a performant IoT device.
+      % As a proof of concept, we are creating a networked fish tank thermometer
+      % with a complete IPv6 network stack and formally verifying all components.
+      %
+      % \begin{itemize}
+      %     \item should be written for a more general audience
+      %     \item alternatively: provide an additional plain-language summary
+      % \end{itemize}
+      % The job of a microkernel (or operating system) is to share resources
+      % between different processes, including CPU time.
+      % For a long time, it was thought that the operation of a microkernel was too complex for
+      % any kind of formal verification in practice (concurrency makes this particularly tricky).
+      % However, the seL4 foundation proved this wrong by creating and verifying the seL4 microkernel, and in doing so opened the gate for future research.
+      % In our ongoing project, we hypothesize that the work of seL4 can be extended
+      % to a fully-functional, verified embedded system, and attempt to build and
+      % verify such a system.
+      % For this thesis, we narrow the scope to just consider a piece of the networking stack (the UDP layer), and working on the verification for that piece.
+      % In order to do this, we must formally define how we expect the UDP layer to work,
+      % defining which behaviors are acceptable and which are not.
+      % Subsequently, we must show that our implementation in fact conforms to these expectations.
 
-      \begin{itemize}
-          \item should be written for a more general audience
-          \item alternatively: provide an additional plain-language summary
-      \end{itemize}
-      The job of a microkernel (or operating system) is to share resources, including CPU time.
-      For a long time, it was thought that the operation of a microkernel was too complex for
-      any kind of formal verification in practice (concurrency makes this particularly tricky).
-      However, seL4 proved this wrong by creating and verifying the seL4 microkernel.
-      What we're trying to do is make a fully-fledged application that is proven from the bottom to the top.
-      Our overarching hypothesis is that this is possible.
-      For this thesis, we narrow the scope to just consider a piece of the networking stack (the UDP layer), and working on the verification for that piece.
-      In order to do this, we must formally define how we expect the UDP layer to work,
-      defining which behaviors are acceptable and which are not.
-      Subsequently, we must show that our implementation in fact conforms to these expectations.
+      In 2009, the seL4 microkernel was released as the first
+      industry-grade microkernel which was formally verified to be correct.
+      In our work, we hypothesize that it is possible at the undergraduate level
+      to leverage seL4 to create a fully-functional embedded system application
+      that is verified at all software levels---something thought to be
+      practically impossible prior to the release of seL4.
+      In our previous work, we have designed and built the C code for a networked
+      fish tank thermometer as a proof-of-concept of nontrivial complexity,
+      with the network stack especially consisting of a number of components.
+      Here, we continue the verification process by formally defining
+      \textit{specifications} and \textit{refinement},
+      and apply them to the UDP layer of the network stack.
+      Specifically, we define how we expect the UDP layer to work in 
+      an abstract specification, describing what behaviors are acceptable and
+      which are not. Subsequently, we show that the design specification 
+      of our implementation conforms to these expectations.
 
 
 \end{abstract}
