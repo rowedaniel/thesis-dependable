@@ -184,7 +184,7 @@ result in exactly the initial packet \lstinline{x}.
         \node (hardware_wrap) [cell, fill=hardware!80, below=30pt of ethernet_wrap] {Hardware};
 
         % unwrap
-        \node (app_unwrap) [cell, fill=application!80, right=10pt of app_wrap] {Application on Computer B};
+        \node (app_unwrap) [cell, fill=application!80, right=14pt of app_wrap] {Application on Computer B};
         \node (udp_unwrap) [cell, fill=udp!80, below=30pt of app_unwrap] {UDP unwrap};
         \node (ip_unwrap) [cell, fill=ip!80, below=30pt of udp_unwrap] {IP unwrap};
         \node (ethernet_unwrap) [cell, fill=ethernet!80, below=30pt of ip_unwrap] {Ethernet unwrap};
