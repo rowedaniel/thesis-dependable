@@ -9,3 +9,6 @@
 *.synctex.gz
 *.bbl
 *.toc
+*.nav
+*.snm
+*.vrb

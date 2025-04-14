@@ -1,0 +1,76 @@
+\documentclass{beamer}
+\usetheme{Boadilla}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+
+% colors
+\usepackage{color}    
+\usepackage[table]{xcolor}
+\usepackage{themecolors}
+
+% isabelle blocks
+\usepackage{listings}
+\lstdefinelanguage{isabelle}{%
+    keywords=[1]{type_synonym,datatype,fun,abbreviation,definition,proof,lemma,theorem,session,sessions,theories},
+    keywordstyle=[1]\bfseries\color{isabelleouterblue},
+    keywords=[2]{where,assumes,shows,and},
+    keywordstyle=[2]\bfseries\color{isabelleoutergreen},
+    keywords=[3]{if,then,else,case,of,SOME,let,in,O},
+    keywordstyle=[3]\color{isabelleinnerblue},
+    keywords=[4]{apply, by, done},
+    keywordstyle=[4]\color{isabelleoutersalmon},
+    morestring=[b]",
+    stringstyle=\color{isabelleoutersalmon},
+    showstringspaces=false,
+}
+\lstset{%
+  language=isabelle,
+  escapeinside={&}{&},
+  columns=fixed,
+  extendedchars,
+  basewidth={0.5em,0.45em},
+  basicstyle=\ttfamily,
+  mathescape,
+}
+
+\title{Title}
+\subtitle{Subtitle}
+\author{Daniel Neshyba-Rowe}
+\institute{Lewis \& Clark College}
+\date{April 17, 2025}
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{SIMPL language}
+\begin{lstlisting}
+type_synonym 's bexp = "'s set"
+type_synonym 's assn = "'s set"
+
+datatype (dead 's, 'p, 'f) com =
+    Skip
+  | Basic "'s $\Rightarrow$ 's"
+  | Spec "('s $\times$ 's) set"
+  | Seq "('s ,'p, 'f) com" "('s,'p, 'f) com"
+  | Cond "'s bexp" "('s,'p,'f) com"  "('s,'p,'f) com"
+  | While "'s bexp" "('s,'p,'f) com"
+  | Call "'p"
+  | DynCom "'s $\Rightarrow$ ('s,'p,'f) com"
+  | Guard "'f" "'s bexp" "('s,'p,'f) com"
+  | Throw
+  | Catch "('s,'p,'f) com" "('s,'p,'f) com"
+\end{lstlisting}
+\end{frame}
+
+
+    
+\end{document}
