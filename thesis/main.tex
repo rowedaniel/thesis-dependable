@@ -32,6 +32,8 @@
     keywords=[4]{apply, by, done},
     keywordstyle=[4]\color{isabelleoutersalmon},
 }
+\lstdefinelanguage{file}{
+}
 \lstset{%
   language=isabelle,
   escapeinside={&}{&},
@@ -335,6 +337,65 @@ How do you prove your implementation correct?
 \begin{itemize}
     \item some isabelle guidelines
 \end{itemize}
+
+
+\section{Isabelle session management}
+At the root of your directory tree, a ``ROOTS'' file may be placed, which describes all directories with required sessions (see figure~\ref{fig:isabelle-roots-file}).
+Each directory referred to in the ROOTS file must contain a ``ROOT'' file, which provides isabelle with the information for creating various sessions
+(see figure~\ref{fig:isabelle-root-file-spec}).
+Sessions in a particular ROOT file may refer to sessions in another, but with some restrictions.
+In our example, the refinement session RefineAD deals with the abstract and design specifications, whose theories are contained in sessions
+ASpec and DSpec.
+Hence, our ROOTS file must contain a reference to both parent directories spec/ (which contains the files for both ASpec and DSpec), and proof/
+(which contains the files for ADRefine).
+Furthermore, the ADRefine session must explicitly list ASpec and DSpec as required parent sessions in its own ROOT file under proof/ (see figure~\ref{fig:isabelle-root-file-proof}).
+
+\begin{figure}[htpb]
+    \centering
+    \begin{lstlisting}[language=file]
+spec
+proof
+    \end{lstlisting}
+    
+    \caption{Example ROOTS file, assuming the root of the directory tree contains a single spec/ and proof/ folder.}
+    \label{fig:isabelle-roots-file}
+\end{figure}
+
+\begin{figure}[htpb]
+    \centering
+    \begin{lstlisting}[language=isabelle]
+session ASpec in "Aspec" = HOL +
+  theories
+    "Network_A"
+    "Udp_A"
+
+session DSpec in "Dspec" = HOL +
+  sessions
+    "HOL-Library"
+  theories
+    "Network_D"
+    "Udp_D"
+    \end{lstlisting}
+    
+    \caption{Example ROOT file in the spec/ directory. Two sessions are created: ASpec (an abstract specification) and DSpec (a design specification).}
+    \label{fig:isabelle-root-file-spec}
+\end{figure}
+
+\begin{figure}[htpb]
+    \centering
+    \begin{lstlisting}[language=isabelle]
+session RefineAD in "RefineAD" = HOL +
+  sessions
+    "ASpec"
+    "DSpec"
+  theories
+    "Relation"
+    \end{lstlisting}
+    
+    \caption{Example ROOT file in the proof/ directory. Note that the RefineAD session relies on the ASpec and DSpec sessions defined in a different ROOT file (in our case, located in the spec/ directory).}
+    \label{fig:isabelle-root-file-proof}
+\end{figure}
+
 
 \chapter{Future Work}
 \begin{itemize}
