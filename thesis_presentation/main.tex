@@ -9,6 +9,10 @@
 \usepackage[table]{xcolor}
 \usepackage{themecolors}
 
+% tikz stuff
+\usepackage{tikz} 
+\usetikzlibrary{positioning, shapes.multipart, arrows, shadows, backgrounds, fit}
+
 % isabelle blocks
 \usepackage{listings}
 \lstdefinelanguage{isabelle}{%
@@ -34,8 +38,8 @@
   mathescape,
 }
 
-\title{Title}
-\subtitle{Subtitle}
+\title{Stacking Correspondence}
+\subtitle{Formal Verification of the Network Stack}
 \author{Daniel Neshyba-Rowe}
 \institute{Lewis \& Clark College}
 \date{April 17, 2025}
@@ -48,6 +52,134 @@
 \frametitle{Outline}
 \tableofcontents
 \end{frame}
+
+\section{Introduction}
+
+\subsection{Goals}
+\begin{frame}
+    \frametitle{Project Overview}
+    \begin{itemize}
+        \item Explore formal code
+            \begin{itemize}
+                \item lots of existing high-level verification
+                \item seL4 first verified microkernel
+                \item how far up can we push it?
+            \end{itemize}
+        \item Build a significant program correctly
+            \begin{itemize}
+                \item embedded system
+                \item IPv6 networked fish tank thermometer
+                \item network communication definitely not trivial
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Goals for this part of the project}
+        \begin{itemize}
+            \item provide a roadmap for how our proofs should work
+            \item start on some of the simpler parts of proof
+        \end{itemize}
+\end{frame}
+
+
+\subsection{Approach}
+\begin{frame}
+    \frametitle{Prior work}
+    \begin{itemize}
+        \item Follow along with seL4's methodology for proofs
+        \item Use seL4's existing tools
+        \item Use existing specifications (network stack has been built before)
+    \end{itemize}
+\end{frame}
+
+
+\subsection{Background}
+
+\section{Methods}
+\subsection{seL4}
+\begin{frame}
+    \frametitle{What do we need to write functional code?}
+    \begin{itemize}
+        \item seL4 is hard to work with
+            \begin{itemize}
+                \item use sDDF
+                \item use microkit
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{How does software look in seL4?}
+    \begin{itemize}
+        \item PDs
+        \item memory regions
+    \end{itemize}
+\end{frame}
+
+
+\subsection{Overview of architecture}
+\begin{frame}
+    \frametitle{The network stack}
+\begin{figure}[htpb]
+    \centering
+    \scalebox{0.55}{
+    \begin{tikzpicture}[node distance=4cm]
+        % styles
+        \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=1cm, text centered, draw=black]
+        \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+        \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+
+        % wrap
+        \node (app_wrap) [cell, fill=application!80] {Application on Computer A};
+        \node (udp_wrap) [cell, fill=udp!80, below=30pt of app_wrap] {UDP wrap};
+        \node (ip_wrap) [cell, fill=ip!80, below=30pt of udp_wrap] {IP wrap};
+        \node (ethernet_wrap) [cell, fill=ethernet!80, below=30pt of ip_wrap] {Ethernet wrap};
+        \node (hardware_wrap) [cell, fill=hardware!80, below=30pt of ethernet_wrap] {Hardware};
+
+        % unwrap
+        \node (app_unwrap) [cell, fill=application!80, right=14pt of app_wrap] {Application on Computer B};
+        \node (udp_unwrap) [cell, fill=udp!80, below=30pt of app_unwrap] {UDP unwrap};
+        \node (ip_unwrap) [cell, fill=ip!80, below=30pt of udp_unwrap] {IP unwrap};
+        \node (ethernet_unwrap) [cell, fill=ethernet!80, below=30pt of ip_unwrap] {Ethernet unwrap};
+        \node (hardware_unwrap) [cell, fill=hardware!80, below=30pt of ethernet_unwrap] {Hardware};
+
+        % layers
+        \node[box, label={left:\rotatebox{90}{Higher-level}}, fit = (app_wrap) (app_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Transport}}, fit = (udp_wrap) (udp_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Network}}, fit = (ip_wrap) (ip_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Data Link}}, fit = (ethernet_wrap) (ethernet_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Physical}}, fit = (hardware_wrap) (hardware_unwrap)] (1) {};
+
+        % flow of information
+        \draw [arrow] (app_wrap) -- (udp_wrap);
+        \draw [arrow] (udp_wrap) -- (ip_wrap);
+        \draw [arrow] (ip_wrap) -- (ethernet_wrap);
+        \draw [arrow] (ethernet_wrap) -- (hardware_wrap);
+        \draw [arrow] (hardware_wrap) -- (hardware_unwrap);
+        \draw [arrow] (hardware_unwrap) -- (ethernet_unwrap);
+        \draw [arrow] (ethernet_unwrap) -- (ip_unwrap);
+        \draw [arrow] (ip_unwrap) -- (udp_unwrap);
+        \draw [arrow] (udp_unwrap) -- (app_unwrap);
+    \end{tikzpicture}}
+
+    
+    \caption{A simplified OSI model, showing the wrap and unwrap components of each layer. Arrows show flow of data. Session, presentation, and application layers are combined into a single ``higher-level'' layer---these layers are unnecessary for our use case of a simple thermometer.}
+    \label{fig:network-stack}
+\end{figure}
+\end{frame}
+
+\subsection{Formalizing program execution}
+\subsection{What does it mean to verify a program?}
+
+\section{Results}
+\subsection{Current state of proofs}
+
+\section{Discussion}
+\subsection{Remarks/Conclusion}
+\subsection{Pure function vs pure state transformation vs hybrid}
+\subsection{Prior work}
+
+
 
 
 \begin{frame}[fragile]
