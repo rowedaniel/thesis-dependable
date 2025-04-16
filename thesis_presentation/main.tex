@@ -178,7 +178,7 @@ lemma "2 + 2 = 4" by simp
     between different processes
 \begin{figure}[htpb]
     \centering
-    \scalebox{0.55}{
+    \scalebox{0.5}{
     \begin{tikzpicture}[node distance=4cm]
         % styles
         \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=3cm, text centered, draw=black]
@@ -186,9 +186,9 @@ lemma "2 + 2 = 4" by simp
         \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
 
         % wrap
-        \node (PD1) [cell, fill=cyan!80] {Protection Domain};
-        \node (PD2) [cell, fill=green!80, right=120pt of PD1] {Protection Domain};
-
+        \node (mem0) [cell, fill=blue!80] {shared memory region};
+        \node (PD1) [cell, fill=cyan!80, below left=20pt of mem0] {Protection Domain};
+        \node (PD2) [cell, fill=green!80, below right=20pt of mem0] {Protection Domain};
         \node (mem1) [cell, fill=cyan!80, below=60pt of PD1] {memory region}; 
         \node (mem2) [cell, fill=green!80, below=60pt of PD2] {memory region}; 
         % % layers
@@ -197,19 +197,21 @@ lemma "2 + 2 = 4" by simp
         % \node[box, label={left:\rotatebox{90}{Network}}, fit = (ip_wrap) (ip_unwrap)] (1) {};
         % \node[box, label={left:\rotatebox{90}{Data Link}}, fit = (ethernet_wrap) (ethernet_unwrap)] (1) {};
         % \node[box, label={left:\rotatebox{90}{Physical}}, fit = (hardware_wrap) (hardware_unwrap)] (1) {};
-        \node [color=red] at (125pt, -40pt) {blocked access};
-        \node [color=green!200] at (-30pt, -60pt) {good access};
+        \node [color=red] at (0, -150pt) {blocked access};
+        \node [color=green!200] at (-115pt, -180pt) {good access};
 
         % flow of information
         \draw [arrow, <->] (PD1) -- (PD2) node[midway, above] {notification};
         \draw [arrow, draw=green] (PD1) -- (mem1);
         \draw [arrow, draw=green] (PD2) -- (mem2);
+        \draw [arrow, draw=green] (PD1) -- (mem0);
+        \draw [arrow, draw=green] (PD2) -- (mem0);
         \draw [arrow, draw=red!40, -{> Square[black]}] (PD1) -- (mem2);
         \draw [arrow, draw=red!40, -{> Square[black]}] (PD2) -- (mem1);
     \end{tikzpicture}}
 
     
-    \caption{A simplified OSI model, showing the wrap and unwrap components of each layer. Arrows show flow of data. Session, presentation, and application layers are combined into a single ``higher-level'' layer---these layers are unnecessary for our use case of a simple thermometer.}
+    \caption{A depiction of some core components of the seL4 microkernel}
     \label{fig:network-stack}
 \end{figure}
     
