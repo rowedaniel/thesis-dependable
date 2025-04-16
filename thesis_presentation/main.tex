@@ -11,7 +11,7 @@
 
 % tikz stuff
 \usepackage{tikz} 
-\usetikzlibrary{positioning, shapes.multipart, arrows, shadows, backgrounds, fit}
+\usetikzlibrary{positioning, shapes.multipart, arrows, arrows.meta, shadows, backgrounds, fit}
 
 % isabelle blocks
 \usepackage{listings}
@@ -161,14 +161,60 @@ lemma "2 + 2 = 4" by simp
     These make verification tricky.
     So tricky, people thought it was impossible for a long time.
     \begin{itemize}
-        \item until about 2009, most verification dealt with high-level abstract data structures
+        \item until about 2009, most verification dealt with high-level abstract data structures and algorithms
         \begin{itemize}
             \item stacks, heaps, trees
             \item easily formalizable
+            \item have to simply assume without proof that basic structures work as intended
         \end{itemize}
-        \item 
+        \item in 2009, seL4 proved things from the ground up, only assuming hardware works correctly.
+        \item but seL4 doesn't do anything on its own---it's a \textit{microkernel}.
     \end{itemize}
 \end{frame}
+
+\begin{frame}{seL4 as a microkernel}
+    The job of a microkernel is to securely share resources
+    (e.g. time, memory, access to network wires)
+    between different processes
+\begin{figure}[htpb]
+    \centering
+    \scalebox{0.55}{
+    \begin{tikzpicture}[node distance=4cm]
+        % styles
+        \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=3cm, text centered, draw=black]
+        \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+        \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+
+        % wrap
+        \node (PD1) [cell, fill=cyan!80] {Protection Domain};
+        \node (PD2) [cell, fill=green!80, right=120pt of PD1] {Protection Domain};
+
+        \node (mem1) [cell, fill=cyan!80, below=60pt of PD1] {memory region}; 
+        \node (mem2) [cell, fill=green!80, below=60pt of PD2] {memory region}; 
+        % % layers
+        % \node[box, label={left:\rotatebox{90}{Higher-level}}, fit = (app_wrap) (app_unwrap)] (1) {};
+        % \node[box, label={left:\rotatebox{90}{Transport}}, fit = (udp_wrap) (udp_unwrap)] (1) {};
+        % \node[box, label={left:\rotatebox{90}{Network}}, fit = (ip_wrap) (ip_unwrap)] (1) {};
+        % \node[box, label={left:\rotatebox{90}{Data Link}}, fit = (ethernet_wrap) (ethernet_unwrap)] (1) {};
+        % \node[box, label={left:\rotatebox{90}{Physical}}, fit = (hardware_wrap) (hardware_unwrap)] (1) {};
+        \node [color=red] at (125pt, -40pt) {blocked access};
+        \node [color=green!200] at (-30pt, -60pt) {good access};
+
+        % flow of information
+        \draw [arrow, <->] (PD1) -- (PD2) node[midway, above] {notification};
+        \draw [arrow, draw=green] (PD1) -- (mem1);
+        \draw [arrow, draw=green] (PD2) -- (mem2);
+        \draw [arrow, draw=red!40, -{> Square[black]}] (PD1) -- (mem2);
+        \draw [arrow, draw=red!40, -{> Square[black]}] (PD2) -- (mem1);
+    \end{tikzpicture}}
+
+    
+    \caption{A simplified OSI model, showing the wrap and unwrap components of each layer. Arrows show flow of data. Session, presentation, and application layers are combined into a single ``higher-level'' layer---these layers are unnecessary for our use case of a simple thermometer.}
+    \label{fig:network-stack}
+\end{figure}
+    
+\end{frame}
+
 
 
 
