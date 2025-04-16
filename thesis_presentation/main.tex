@@ -48,12 +48,140 @@
 \titlepage
 \end{frame}
 
-\begin{frame}
-\frametitle{Outline}
-\tableofcontents
-\end{frame}
+% \begin{frame}
+% \frametitle{Outline}
+% \tableofcontents
+% \end{frame}
 
 \section{Introduction}
+
+\subsection{The Network Stack}
+\begin{frame}{The Network Stack}
+    
+
+    \begin{itemize}
+        \item<1-> ``The network stack is an implementation of a computer networking protocol suite or protocol family.'' (wikipedia)
+        \begin{itemize}
+            \item<2-> Not a very helpful description
+        \end{itemize}
+        
+    \end{itemize}
+    
+
+    \onslide<1,2>{
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.4\linewidth]{../thesis_presentation/figs/wikipedia_OSI_Model_v1.svg.png}
+        \caption{The OSI model, taken from Wikipedia}
+        \label{fig:enter-label}
+    \end{figure}
+    }
+\end{frame}
+
+\begin{frame}{The Network Stack---Post Office analogy}
+TODO: insert images here
+\end{frame}
+
+\begin{frame}{Verification}
+Verification is proving ``it has no bugs.''
+But what does that look like?
+\vspace{20pt}\\
+
+    \begin{columns}[t]
+        \column{0.5\textwidth}
+        \begin{itemize}
+            \item imagine an ideal post office
+            \item show that the ideal post office works great
+            \begin{itemize}
+                \item letters I send to you, you receive as written
+            \end{itemize}
+            \item look at a real post office
+            \item show that the real post office works the same as the theoretical one
+        \end{itemize}
+        
+        \column{0.5\textwidth}
+        \begin{itemize}
+            \item create an {\it abstract specification}
+            \item show various {\it invariants} hold in the abstract specification 
+            \vspace{1.65\baselineskip}\\
+            \item create a {\it concrete specification}
+            \item show the concrete specification {\it refines} the abstract specification
+            \vspace{\baselineskip}\\
+        \end{itemize}
+    \end{columns}
+    
+\end{frame}
+
+\begin{frame}<1,2>[label=ver_dif_tests]{Formal Verification is different from tests}
+    In formal verification, we need rigorous mathematical proofs.
+    
+    Furthermore, these proofs should be verified
+    by a \alert<2,3,4>{\it proof engine}.
+    \vspace{20pt}\\
+    
+    One challenge with \alert<4>{system software} is that things
+    frequently have a low chance of failing, but could still fail (e.g. two processes trying to access
+    the same data at the same time---unlikely, but
+    if handled poorly disastrous).
+\end{frame}
+
+\begin{frame}{Proof engines make proofs more rigorous}
+    Infamously, people make misatkes.
+    This is a big problem when formality is required.
+
+    % TODO: split up into own slide? Ignore?
+    Some examples of human error in proofs:
+    \begin{itemize}
+        \item Fifth Postulate
+        \item All horses are the same color
+    \end{itemize}
+
+    What's the solution?
+    Use software to automate checking proofs (a proof engine).
+
+\end{frame}
+
+\begin{frame}[fragile]{Isabelle --- the proof engine we use}
+    Isabelle is one such proof engine.
+    Isabelle is itself verified correct, and provides tools to prove mathematical statements.
+    \begin{lstlisting}
+lemma "2 + 2 = 4" by simp
+    \end{lstlisting}
+\end{frame}
+
+\againframe<3,4>{ver_dif_tests}
+
+\begin{frame}{System software is hard to verify}
+    % TODO: decide: "embeded system" vs "system"
+    System software is in charge of low-level operations.
+    \begin{itemize}
+        \item needs to be fast
+        \item directly deals with memory and other hardware resources
+    \end{itemize}
+    These make verification tricky.
+    So tricky, people thought it was impossible for a long time.
+    \begin{itemize}
+        \item until about 2009, most verification dealt with high-level abstract data structures
+        \begin{itemize}
+            \item stacks, heaps, trees
+            \item easily formalizable
+        \end{itemize}
+        \item 
+    \end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \subsection{Goals}
 \begin{frame}
@@ -184,7 +312,7 @@
 
 \begin{frame}[fragile]
 \frametitle{SIMPL language}
-\begin{lstlisting}
+\begin{lstlisting}[language=isabelle]
 type_synonym 's bexp = "'s set"
 type_synonym 's assn = "'s set"
 
@@ -206,3 +334,4 @@ datatype (dead 's, 'p, 'f) com =
 
     
 \end{document}
+
