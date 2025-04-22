@@ -23,7 +23,7 @@
 % code blocks
 \usepackage{listings}
 \lstdefinelanguage{isabelle}{%
-    keywords=[1]{type_synonym,datatype,fun,abbreviation,definition,proof,lemma,theorem,session,sessions,theories},
+    keywords=[1]{type_synonym,datatype,fun,abbreviation,definition,proof,lemma,theorem,session,sessions,theories,text,section},
     keywordstyle=[1]\bfseries\color{isabelleouterblue},
     keywords=[2]{where,assumes,shows,and},
     keywordstyle=[2]\bfseries\color{isabelleoutergreen},
@@ -31,6 +31,11 @@
     keywordstyle=[3]\color{isabelleinnerblue},
     keywords=[4]{apply, by, done},
     keywordstyle=[4]\color{isabelleoutersalmon},
+    morestring=[b]",
+    morecomment=[n]{(*}{*)},
+    % morecomment=[n]{\guilsingleft}{\guilsingright},
+    stringstyle=\color{isabellequote},
+    showstringspaces=false,
 }
 \lstdefinelanguage{file}{
 }
@@ -128,6 +133,8 @@
 
 \chapter{Introduction}
 
+TODO: do I need a motivation?
+
 \section{Background}
 
 This project sits within a larger body of work by seL4 (TODO: citation needed) and K{\"a}gi (TODO: citation needed).
@@ -140,7 +147,7 @@ Furthermore, the goal is to formally show that all software in the
 thermometer works correctly, without any bugs or flaws that could cause
 it to break or report incorrect data (barring physical malfunctions of the hardware).
 
-\subsection{Network stack}
+\section{Network stack}
 Key to a networked temperature sensor is the code responsible for networking---communicating over the internet to other devices.
 The standard protocol for network communication is defined in
 a variety of RFC and IEEE specifications.
@@ -221,7 +228,7 @@ the inverse function of \lstinline{udp_wrap}.
     \label{fig:network-stack}
 \end{figure}
 
-\subsection{seL4}
+\section{seL4}
 
 TODO: look over seL4 paper and make this paragraph more correct:
 
@@ -297,37 +304,48 @@ will likely be useful in this case.
 
 TODO: could mention that putting them all into the same PD could make performance
 better, but proofs harder
+%
+% \subsection{Notation} % maybe combine with the tools section?
+% TODO: remove this section, I think
+% \begin{itemize}
+%     \item refinement
+%     \item Hoare triples (TODO: figure out right notation)
+%         \[
+%         \{|
+%             \lambda s. 
+%         |\}
+%         .\] 
+%
+%     \item big semantics:
+%         \[
+%             (c,s) \Rightarrow t
+%         \] 
+%         means ``command $c$ starting from state $s$ results in state $t$.''
+%     \item small step semantics
+%     \item $\Gamma$? Not sure yet
+%     \item $\top \equiv \lambda s. true$ and $\bot \equiv \lambda s. false$
+%     \item $x \equiv y$ ``$x$ is defined as $y$''
+%     \item $x:=y$ ``assign $x$ to $y$.''
+% \end{itemize}
+%
+% \section{Goals}
+% TODO: remove this section, I think
+% \begin{itemize}
+%     \item ultimately, verify entire network stack
+%     \item for now, invariant for abstract UDP saying wrap and unwrap compose to identity function.
+% \end{itemize}
 
-\subsection{Notation} % maybe combine with the tools section?
+
+\chapter{Our Work}
+\section{Simplifying assumptions}
+\subsection{Ignore other layers and arbitrary state changes}
 \begin{itemize}
-    \item refinement
-    \item Hoare triples (TODO: figure out right notation)
-        \[
-        \{|
-            \lambda s. 
-        |\}
-        .\] 
-
-    \item big semantics:
-        \[
-            (c,s) \Rightarrow t
-        \] 
-        means ``command $c$ starting from state $s$ results in state $t$.''
-    \item small step semantics
-    \item $\Gamma$? Not sure yet
-    \item $\top \equiv \lambda s. true$ and $\bot \equiv \lambda s. false$
-    \item $x \equiv y$ ``$x$ is defined as $y$''
-    \item $x:=y$ ``assign $x$ to $y$.''
-\end{itemize}
-
-\section{Goals}
-\begin{itemize}
-    \item ultimately, verify entire network stack
-    \item for now, invariant for abstract UDP saying wrap and unwrap compose to identity function.
-\end{itemize}
-
-\subsection{Simplifying assumptions}
-\begin{itemize}
+    \item discuss what was mentioned earlier
+    \item UDP doesn't care about correct execution of other layers---it should work correctly within its layer
+    \item suppress other layers for now
+    \item this means we can treat our code as running contiguously without state changes coming from external events (this will have to be dealt with more carefully when other layers are introduced and we have more PDs).
+        Treat UDP wrap as running uninterrupted until completion.
+        We have access to all our memory also, and will not trap or fault on memory access.
     % \item all layers below UDP work (prove this later)
     % \item hardware assumptions.
     %     \begin{itemize}
@@ -335,55 +353,214 @@ better, but proofs harder
     %         \item no packets corrupted
     %         \item packets are received in the order they are sent
     %     \end{itemize}
-    \item UDP doesn't care about correct execution of other layers---it should work correctly within its layer
-    \item suppress other layers for now
-    \item this means we can treat our code as running contiguously without state changes coming from external events (this will have to be dealt with more carefully when other layers are introduced and we have more PDs).
-        Treat UDP wrap as running uninterrupted until completion.
-        We have access to all our memory also, and will not trap or fault on memory access.
 \end{itemize}
-
-\chapter{Our Work}
-
-\section{Tools}
-
+\subsection{C compiler and hardware}
 \begin{itemize}
-    \item Hoare logic / Hoare triples
-    \item refinement book
-    \item isabelle
-    \item seL4 stuff (nondeterministic monads, corres, c-parser?)
+    \item byte size: 8 bits, etc.
+    \item C compiler works correctly
 \end{itemize}
 
+Lastly, assume isabelle works correctly (it has a proven core)
+
+% \section{Tools}
+%
+% \begin{itemize}
+%     \item Hoare logic / Hoare triples
+%     \item refinement book
+%     \item isabelle
+%     \item seL4 stuff (nondeterministic monads, corres, c-parser?)
+% \end{itemize}
+%
 \section{Proof architecture}
 How do you prove your implementation correct?
 
-\subsection{Specifications}
+\subsection{Overview}
 \begin{itemize}
-    \item UDP abstract spec send
-    \item UDP abstract spec recv
-    \item UDP design spec send
-    \item UDP design spec recv
+    \item basic flow diagrams
+\end{itemize}
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance=4cm, every node/.style={scale=1.3}]
+        % styles
+        \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=3cm, text centered, draw=black]
+        \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+        \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+
+        % wrap
+        \node (abstract) [cell, fill=cyan!80] {\LARGE abstract specification};
+        \node (invs) [cell, fill=orange!80, right=120pt of abstract] {\LARGE invariants};
+        \node (design) [cell, fill=green!80, below=140pt of abstract] {\LARGE design specification};
+        
+        % \node [color=red] at (0, -150pt) {blocked access};
+        % \node [color=green!200] at (-115pt, -180pt) {good access};
+
+        % flow of information
+        \draw [arrow] (abstract) -- (design) node[midway, left] {\rotatebox{90}{refines}};
+        \draw [arrow] (invs) -- (abstract) node[midway, above] {always true for};
+    \end{tikzpicture}
+    \caption{Depiction of the proof architecture explored in this paper.
+    A high-level description of what \lstinline{udp_wrap} should do
+    is described in code in the abstract specification.
+    An more concrete implementation which makes some assumptions about hardware
+    is then defined in the design specification.
+    Desirable qualities of \lstinline{udp_wrap} are described as invariants,
+    which apply to the abstract specification.
+    Lastly, a notion of program correspondence is shown between the
+    abstract and design specification---namely, the design specification
+    should refine the abstract specification.
+    }
+    \label{fig:network-stack}
+\end{figure}
+
+\section{Abstract specification}
+\begin{lstlisting}[language=isabelle]
+type_synonym message $=$ "nat list"
+
+type_synonym ip_addr $=$ "nat"
+type_synonym port $=$ "nat"
+type_synonym socket $=$ "ip_addr $\times$ port"
+type_synonym connection $=$ "socket $\times$ socket"
+
+\end{lstlisting}
+TODO: discuss.
+Finally, a connection is uniquely identified by two sockets:
+a source socket and a destination socket.
+\begin{lstlisting}[language=isabelle]
+definition udp_wrap :: "message $\Rightarrow$ connection $\Rightarrow$ message" where
+  "udp_wrap msg conn $\equiv$ (let
+                          src_sk $=$ src conn;
+                          dst_sk $=$ dst conn;
+                          src_ip_addr $=$ ip_addr src_sk;
+                          dst_ip_addr $=$ ip_addr dst_sk;
+                          src_port $=$ port src_sk;
+                          dst_port $=$ port dst_sk;
+                          len $=$ length msg $+$ udp_hdr_sz
+                        in
+                          [src_port, dst_port, len,
+                           checksum16 [src_ip_addr,
+                                       dst_ip_addr,
+                                       0, udp_proto, len]
+                          ]) $@$ msg"
+\end{lstlisting}
+TODO: discuss.
+\begin{itemize}
+    \item encoding in this case is prepending a header
+    \item mention that the checksum can be omitted?
 \end{itemize}
 
-\subsection{Refinement}
+
+
+\section{Invariants}
+% TODO: invariant singular?
+\begin{lstlisting}[language=isabelle]
+lemma compose_to_id:
+"VARS orig_msg wrapped_msg unwrapped_msg conn
+&\colorbox{green}{\{well\_formed orig\_msg conn\}}&
+&\colorbox{cyan}{wrapped\_msg := udp\_wrap orig\_msg conn;}&
+&\colorbox{cyan}{unwrapped\_msg := udp\_unwrap wrapped\_msg}&
+&\colorbox{blue}{\{orig\_msg = unwrapped\_msg\}}&"
+\end{lstlisting}
+
+    This is a type of \textit{Hoare triple}, which are statements of the form
+\begin{lstlisting}[language=isabelle]
+&\colorbox{green}{\{precondition\}}&
+&\colorbox{cyan}{program that changes state}&
+&\colorbox{blue}{\{postcondition\}}&
+\end{lstlisting}
+
 \begin{itemize}
-    \item Use the refinement book's notation?
-        \begin{itemize}
-            \item normal variables $\vec{x}$ 
-            \item representation variables $\vec{a}$ 
-            \item programs $P(\mathcal{A})$ and $P(\mathcal{C})$
-            \item refinement is that
-                 $CI; P(\mathcal{C}); CF \subseteq AI; P(\mathcal{A}); AF$
-             % \item \begin{tikzpicture}
-             %         \node (AI) {$AI$ }
-             %         \node (PA) {$P(\mathcal{A})$ }
-             %         \node (AF) {$AF$ }
-             %     \end{tikzpicture}
-                 
-        \end{itemize}
-    \item show that design spec refines abstract spec
+    \item mention that we can't prove this invariant yet, since we need
+        to define unwrap?
+    \item give some nice formal definitions of Hoare triples
+        from semantics.
+    \item discuss how the triples themselves can be composed to get bigger triples
+    \item mention that this is from the HOL-Hoare library or whatever
 \end{itemize}
 
+
+\section{Design specification}
+%TODO: remove the dot dot dots?
+\begin{lstlisting}[language=isabelle]
+type_synonym message_d = "byte list"
+
+(* IPv6 addresses are 8 16-bit words *)
+type_synonym ip_addr_d $=$ "word16 $\times$ word16 $\times \cdots \times$ word16"
+type_synonym port_d $=$ "word16"
+type_synonym socket_d $=$ "ip_addr_d $\times$ port_d"
+type_synonym connection_d $=$ "socket_d $\times$ socket_d"
+\end{lstlisting}
+\begin{itemize}
+    \item discuss word library
+    \item show some of the helper definitions we made
+    \item show some simps you can do to convert between
+\end{itemize}
+
+\begin{lstlisting}[language=isabelle]
+definition udp_wrap_d :: "message_d $\Rightarrow$ connection_d $\Rightarrow$ message_d"
+where "udp_wrap_d msg conn $\equiv$ (let
+                            src_sk $=$ src conn;
+                            dst_sk $=$ dst conn;
+                            src_ip_addr $=$ ip_addr src_sk;
+                            dst_ip_addr $=$ ip_addr dst_sk;
+                            src_port $=$ port src_sk;
+                            dst_port $=$ port dst_sk;
+                            len $=$ (of_nat
+                        (length msg $+$ udp_hdr_sz)::word16);
+                            chksum $=$ (0 :: word16)
+                          in
+                            (porttomsgd src_port $@$
+                             porttomsgd dst_port $@$
+                             w16tomsg len $@$
+                             w16tomsg chksum
+                            ) $@$ msg)"
+
+
+\end{lstlisting}
+\begin{itemize}
+    \item discuss isabelle definition vs fun vs inductive?
+    \item minimally different on the surface from the abstract spec
+    \item need to do appends ($@$ ) instead of cons ($\#$ ) due to 
+        things getting split up (16-bit port to 2 8-bit numbers, for example)
+\end{itemize}
+
+
+\section{Refinement}
+
+\section{Ongoing and future work}
 \subsection{Convert C to Simpl}
+\begin{itemize}
+    \item show some example conversions
+    \item discuss need to switch to more seL4 way of doing things?
+\end{itemize}
+
+\chapter{Conclusions}
+\section{Conclusions}
+\section{Future Work}
+\begin{itemize}
+    \item Make abstract and design specs for other layers
+    \item c conversion for other layers
+    \item c conversion for UDP?
+    \item refinement for other layers
+    \item seL4 proofs (specifically, PD stuff)
+    \item introduce hardware problems
+        \begin{itemize}
+            \item think of this as relaxing assumptions about hardware
+            \item e.g. packets won't be corrupted, but could arrive in weird orders
+            \item note that there's probably a limit to this,
+                since a packet could randomly corrupt to
+                look completely legit---it's just very
+                unlikely with all the error correction
+                going on.
+                Thus, we could model this by, e.g.,
+                saying that only a limited arbitrary subset
+                of the packet can be corrupted;
+                or by saying any part of the packet other
+                than the CRC can be corrupted.
+                Pros/cons to each.
+        \end{itemize}
+    \item introduce linear temporal logic to have some ``always eventually''-type stuff
+\end{itemize}
+\section{Discussion}
 
 \chapter{A Day in the Life of}
 \begin{itemize}
@@ -392,6 +569,7 @@ How do you prove your implementation correct?
 
 
 \section{Isabelle session management}
+TODO: where to put this? Appendix?
 At the root of your directory tree, a ``ROOTS'' file may be placed, which describes all directories with required sessions (see figure~\ref{fig:isabelle-roots-file}).
 Each directory referred to in the ROOTS file must contain a ``ROOT'' file, which provides isabelle with the information for creating various sessions
 (see figure~\ref{fig:isabelle-root-file-spec}).
@@ -447,60 +625,6 @@ session RefineAD in "RefineAD" = HOL +
     \caption{Example ROOT file in the proof/ directory. Note that the RefineAD session relies on the ASpec and DSpec sessions defined in a different ROOT file (in our case, located in the spec/ directory).}
     \label{fig:isabelle-root-file-proof}
 \end{figure}
-
-
-\chapter{Future Work}
-\begin{itemize}
-    \item Make abstract and design specs for other layers
-    \item c conversion for other layers
-    \item c conversion for UDP?
-    \item refinement for other layers
-    \item seL4 proofs (specifically, PD stuff)
-    \item introduce hardware problems
-        \begin{itemize}
-            \item think of this as relaxing assumptions about hardware
-            \item e.g. packets won't be corrupted, but could arrive in weird orders
-            \item note that there's probably a limit to this,
-                since a packet could randomly corrupt to
-                look completely legit---it's just very
-                unlikely with all the error correction
-                going on.
-                Thus, we could model this by, e.g.,
-                saying that only a limited arbitrary subset
-                of the packet can be corrupted;
-                or by saying any part of the packet other
-                than the CRC can be corrupted.
-                Pros/cons to each.
-        \end{itemize}
-    \item introduce linear temporal logic to have some ``always eventually''-type stuff
-\end{itemize}
-
-
-% \section{Trees and Glosses}
-%
-% Packages have documentation that explain (among other things) how to implement them. These are brief implementation examples for \texttt{expex} and \texttt{tikz-qtree}. 
-%
-% Glossed examples data can be presented like in (\ref{ex:missile}) below.
-%
-% \ex\label{ex:missile}
-% \begingl
-% \gla Missile cannot anyhow tzua one. //
-% \glb Missile cannot carelessly fire \textsc{attr} //
-% \glft `Missiles should not be carelessly fired.' //
-% \endgl
-% \xe
-%
-% A syntax tree can be presented and labelled as a figure, as with Figure \ref{fig:ticket-topic} below. 
-%
-% \begin{figure}[h!]
-% \caption{Deriving `Ticket you got?' through topicalization}
-% \centering
-% \begin{tikzpicture}[scale=0.75]
-% \Tree [.S$'$ \node(x){\qroof{ticket}.NP }; [.S $\emptyset$ [.VP {\qroof{you}.NP } [.V$'$ [.V got ] \node(y){t}; ] ] ] ]
-% \draw[semithick, <-] (x.south)..controls +(south:5) and +(south:3)..(y.south);
-% \end{tikzpicture}
-% \label{fig:ticket-topic}
-% \end{figure}
 
 
 % If you want to include appendices, just use the \appendix command and then make chapters as normal
