@@ -96,20 +96,22 @@
 
       In 2009, the seL4 microkernel was released as the first
       industry-grade microkernel which was formally verified to be correct.
-      In our work, we hypothesize that it is possible at the undergraduate level
-      to leverage seL4 to create a fully-functional embedded system application
+      In our work, we hypothesize that it is possible
+      to leverage seL4 to create a fully-functional embedded system application running IPv6
       that is verified at all software levels---something thought to be
       practically impossible prior to the release of seL4.
-      In our previous work, we have designed and built the C code for a networked
-      fish tank thermometer as a proof-of-concept of nontrivial complexity,
-      with the network stack especially consisting of a number of components.
-      Here, we continue the verification process by formally defining
-      \textit{specifications} and \textit{refinement},
-      and apply them to the UDP layer of the network stack.
-      Specifically, we define how we expect the UDP layer to work in 
-      an abstract specification, describing what behaviors are acceptable and
-      which are not. Subsequently, we show that the design specification 
+      In our previous work, we designed and built the C code for a networked
+      fish tank thermometer as a proof-of-concept of nontrivial complexity.
+      Much of the complexity lies in the network stack, which consists of a number of components.
+      Here, we focus on the components of the network stack that constitute the UDP layer, continuing the verification process
+      by formally defining specifications and refinement steps,
+      and applying them to the UDP layer.
+      More specifically, we define how we expect the UDP layer to
+      work in an abstract specification, describing
+      what behaviors are acceptable and which are not.
+      Subsequently, we show that the design specification
       of our implementation conforms to these expectations.
+      % TODO: note that in fact we do NOT show NADA
 
 
 \end{abstract}
