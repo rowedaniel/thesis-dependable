@@ -668,10 +668,103 @@ datatype (dead 's, 'p, 'f) com =
 \end{lstlisting}
 \end{frame}
 
+\begin{frame}[fragile]{Program definitions}
+A nondeterministic program takes the current state,
+and returns a set of possible output states.
+\begin{lstlisting}[language=isabelle]
+type_synonym 's ndet_prog = "'s $\Rightarrow$ 's set
+\end{lstlisting}
+
+A deterministic program takes the current state,
+and outputs a new state.
+\begin{lstlisting}[language=isabelle]
+type_synonym 's det_prog = "'s $\Rightarrow$ 's"
+\end{lstlisting}
+Note that this way of thinking about things is
+very different from the ``pure function'' approach
+we take in the current formulation of our results.
+\end{frame}
 
 
+\begin{frame}[fragile]{Refinement example (nondeterministic)}
+\begin{lstlisting}[language=isabelle]
+(* abstract spec *)
+definition some_item :: "'a list $\Rightarrow$ 'a option" where
+  "some_item xs $\equiv$ case xs of 
+    [] $\Rightarrow$ None |
+    xs $\Rightarrow$ Some (SOME x. x $\in$ (set xs))
+  "
 
+(* concrete spec *)
+definition first_item :: "'a list $\Rightarrow$ 'a option"
+  where "first_item xs $\equiv$ case xs of 
+    [] $\Rightarrow$ None |
+    (x#xs) $\Rightarrow$ (Some x)
+  "
+\end{lstlisting} 
+\end{frame}
 
+\begin{frame}[fragile]{Formal definition of refinement (nondeterministic)}
+\begin{lstlisting}
+definition corres :: "('s $\Rightarrow$ 't $\Rightarrow$ bool) $\Rightarrow$
+                      's program $\Rightarrow$
+                      't program $\Rightarrow$
+                      bool"
+where
+ "corres relation aprog cprog = $\forall$(tin::'t, sin::'s).
+        (relation tin sin) $\Longrightarrow$
+        $\forall$tout $\in$ (cprog tin).
+        $\exists$sout $\in$ (aprog sin) (relation tout sout)"
+
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Formal definition of refinement (deterministic)}
+\begin{lstlisting}
+definition
+  corres_det :: "('s $\Rightarrow$ 't $\Rightarrow$ bool) $\Rightarrow$
+                           's det_program $\Rightarrow$
+                           't det_program $\Rightarrow$
+                           bool"
+where
+ "corres_det relation aprog cprog = $\forall$(tin::'t, sin::'s).
+        (relation tin sin) $\Longrightarrow$
+        (relation (cprog tin) (aprog sin))"
+
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Refinement as an embedding}
+\begin{figure}
+    \centering
+    \scalebox{0.65}{
+    \begin{tikzpicture}[
+    dot/.style = {circle, fill, minimum size=#1,
+                  inner sep=0pt, outer sep=0pt},
+    dot/.default = 6pt
+    ]
+            % styles
+            \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+    
+            \node (abss) [dot=100pt, fill=cyan!80,label=abstract state space] {};
+            \node (abp) [dot, right=-40pt of abss] {};
+            \node (abss2) [dot=100pt, fill=cyan!80,label=abstract state space, right=100pt of abss] {};
+            \node (abpout) [dot=50pt, fill=gray!30,label=nondet output, right=-70pt of abss2] {};
+            
+            \node (copout2) at (abpout) [dot=20pt, fill=gray!90, right=-60pt of abss2] {};
+            
+            \node (coss) [dot=100pt, fill=green!80,label=below:concrete state space, below=100pt of abss] {};
+            \node (cop) [dot, right=-40pt of coss] {};
+            \node (coss2) [dot=100pt, fill=green!80,label=below:concrete state space, right=100pt of coss] {};
+            \node (copout) [dot=20pt, fill=gray!90,label=below:nondet output, right=-60pt of coss2] {};
+    
+            \draw [arrow] (abp) -- (abpout) node[midway, above] {abstract program};
+            \draw [arrow] (cop) -- (copout) node[midway, above] {concrete program};
+            \draw [arrow, <->] (copout) -- (copout2) node[midway, right] {\rotatebox{90}{equivalent}};
+            \draw [arrow, <->] (abp) -- (cop) node[midway, right] {\rotatebox{90}{equivalent}};
+    \end{tikzpicture}}
+\end{figure}
+\end{frame}
 
 
 
