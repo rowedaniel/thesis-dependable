@@ -18,7 +18,7 @@
 \usepackage[table]{xcolor}
 \usepackage{themecolors}
 \usepackage{tikz} 
-\usetikzlibrary{positioning, shapes.multipart, arrows, shadows, backgrounds, fit}
+\usetikzlibrary{positioning, shapes.multipart, arrows, arrows.meta, shadows, backgrounds, fit}
 
 % code blocks
 \usepackage{listings}
@@ -224,10 +224,57 @@ TODO: look over seL4 paper and make this paragraph more correct:
 
 The seL4 microkernel (TODO: citation needed) is a verified microkernel
 that is performant and secure.
-SeL4 provides two important isolation abstractions: protection domains (PDs), which can be loosely described as an address spaces provides isolation from
+The seL4 microkernel provides two important isolation abstractions:
+protection domains (PDs),
+which can be loosely described as address spaces that provide isolation from
 other processes,
-and memory regions, which are associated with a number of PDs which can write to or read from.
+and memory regions, which are blocks of physical memory.
+Any number of PDs can be associated with a given memory region,
+allowing for transfer of data between two PDs 
+(see blue box at top of figure~\ref{fig:sel4-mem-pd}),
+or storage of data within
+a single PD
+(see cyan and green boxes at bottom of figure~\ref{fig:sel4-mem-pd}).
+Additionally, seL4 provides a notification API,
+% TODO: check if this is base seL4 or microkit
+whereby a PD can notify a second PD, and the second can,
+on receipt of that notification, execute some command.
 
+\begin{figure}[htpb]
+    \centering
+    \begin{tikzpicture}[node distance=4cm]
+        % styles
+        \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=3cm, text centered, draw=black]
+        \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+        \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+
+        % wrap
+        \node (mem0) [cell, fill=blue!80] {\LARGE shared memory region};
+        \node (PD1) [cell, fill=cyan!80, below left=20pt of mem0] {\LARGE Protection Domain};
+        \node (PD2) [cell, fill=green!80, below right=20pt of mem0] {\LARGE Protection Domain};
+        \node (mem1) [cell, fill=cyan!80, below=60pt of PD1] {\LARGE memory region}; 
+        \node (mem2) [cell, fill=green!80, below=60pt of PD2] {\LARGE memory region}; 
+        \node [color=red] at (0, -150pt) {blocked access};
+        \node [color=green!200] at (-115pt, -180pt) {good access};
+
+        % flow of information
+        \draw [arrow, <->] (PD1) -- (PD2) node[midway, above] {notification};
+        \draw [arrow, draw=green] (PD1) -- (mem1);
+        \draw [arrow, draw=green] (PD2) -- (mem2);
+        \draw [arrow, draw=green] (PD1) -- (mem0);
+        \draw [arrow, draw=green] (PD2) -- (mem0);
+        \draw [arrow, draw=red!40, -{> Square[black]}] (PD1) -- (mem2);
+        \draw [arrow, draw=red!40, -{> Square[black]}] (PD2) -- (mem1);
+    \end{tikzpicture}
+    \caption{A depiction of some core components of the seL4 microkernel.
+    Protection Domains (PDs) can be associated with memory regions,
+    and are only able to read or modify those memory regions.
+    Additionally, PDs can communicate with each other through notifications.}
+    \label{fig:sel4-mem-pd}
+\end{figure}
+% TODO: make sure this all sounds good
+
+% TODO: split up into assumption and discussion sections?
 For the purposes of this paper, we will operate under the assumption that
 the UDP layer exists in a completely isolated PD, meaning
 we disallow arbitrary (TODO: random?) changes to state by other processes;
