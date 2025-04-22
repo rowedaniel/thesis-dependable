@@ -421,10 +421,11 @@ where "udp_wrap_d msg conn = (let
                         (length msg + udp_hdr_sz)::word16);
                             chksum = (0 :: word16)
                           in
-                            porttomsgd src_port @
-                            porttomsgd dst_port @
-                            w16tomsg len @
-                            w16tomsg chksum @ msg)"
+                            (porttomsgd src_port @
+                             porttomsgd dst_port @
+                             w16tomsg len @
+                             w16tomsg chksum
+                            ) @ msg)"
 
 
     \end{lstlisting}
@@ -463,7 +464,7 @@ fun ip_addr_d_to_nat :: "ip_addr_d $\Rightarrow$ nat" where
                                         $\vdots$
                                         (unat h)*2^(16*0)"
 definition relation_socket :: "socket $\Rightarrow$ socket_d $\Rightarrow$ bool"
-  where "relation_socket sock sock_d = (
+  where "relation_socket sock sock_d $\equiv$ (
     (ip_addr_a sock = ip_addr_d_to_nat (ip_addr_d sock_d)) $\land$
     (port_a sock = unat (port_d sock_d))
         )"
