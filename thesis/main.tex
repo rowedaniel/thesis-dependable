@@ -102,13 +102,16 @@
       In 2009, the seL4 microkernel was released as the first
       industry-grade microkernel which was formally verified to be correct.
       In our work, we hypothesize that it is possible
-      to leverage seL4 to create a fully-functional embedded system application running IPv6
+      to leverage seL4 to create a fully-functional embedded system application running 
+      Internet Protocol version 6 (IPv6)
       that is verified at all software levels---something thought to be
       practically impossible prior to the release of seL4.
       In our previous work, we designed and built the C code for a networked
       fish tank thermometer as a proof-of-concept of nontrivial complexity.
       Much of the complexity lies in the network stack, which consists of a number of components.
-      Here, we focus on the components of the network stack that constitute the UDP layer, continuing the verification process
+      Here, we focus on the components of the network stack that constitute a particular layer
+      (the UDP layer), 
+      continuing the verification process
       by formally defining specifications and refinement steps,
       and applying them to the UDP layer.
       More specifically, we define how we expect the UDP layer to
@@ -135,7 +138,26 @@
 
 TODO: do I need a motivation?
 
-\section{Background}
+\section{Background and motivation}
+
+Why do we care about proofs?
+Modern life is full of computer systems,
+many of whose failure would have catastrophic consequences.
+A familiar example would be self-driving cars.
+Others include satellites and medical equipment, and even the software provided with regular cars.
+
+Furthermore, bugs are famously hard to track down, blah blah blah linux kernel no decrease in bugs blah blah.
+As Dijkstra said, ``Testing shows the presence, not the absence of bugs.''
+Solution? Formal verification. Define it. Mention proof engines.
+
+\begin{itemize}
+    \item why do we care about proofs?
+    \item pushing for bigger ground-up proofs
+\end{itemize}
+
+Prior to 2009, proofs of actual systems wasn't really feasible on the software level,
+since no one had verified a useable OS or microkernel, blah blah blah, define what an OS / microkernel does
+Then, in 2009 the seL4 microkernel was formally verified to have no bugs.
 
 This project sits within a larger body of work by seL4 (TODO: citation needed) and K{\"a}gi (TODO: citation needed).
 Specifically, some exposition is needed to clarify the process of
@@ -148,39 +170,21 @@ thermometer works correctly, without any bugs or flaws that could cause
 it to break or report incorrect data (barring physical malfunctions of the hardware).
 
 \section{Network stack}
-Key to a networked temperature sensor is the code responsible for networking---communicating over the internet to other devices.
-The standard protocol for network communication is defined in
-a variety of RFC and IEEE specifications.
-While most of the details are beyond the scope of this paper
-(though not the project as a whole), the basic architecture merits some
-discussion.
-
-The Open Systems Interconnection (OSI) model describes the standard
-implementation of the network stack, for use in communication between
-devices.
-The network stack is divided into logical layers.
+Key to a networked temperature sensor is the code responsible for networking---where
+two computers communicate over the internet.
+% The standard protocol for network communication is defined in
+% a variety of standardized specifications from a standard body of technical
+% specifications, such as Request For Comment (RFC) and IEEE documents.
+The network stack is divided into logical layers, as seen in figure~\ref{fig:network-stack}.
 Each layer has a plain-language specification
 consisting of either a Request For Comment (RFC) or an IEEE document
 that describes the standard interface for interacting with that layer.
 At a minimum, each layer contains a \textit{wrap} and an \textit{unwrap}
-endpoint, though IP and UDP in particular require more functionality.
+endpoint, though IP in particular requires more functionality.
 As such, we can think of the network stack as a series of composable
 encoders and decoders,
 where the call to decode a packet might look like
 \lstinline{udp_unwrap(ip_unwrap(eth_unwrap(hardware_packet)))}.
-
-If everything works perfectly, then after a packet is encoded
-and sent over the physical transmission medium, decoding it should
-result in the same packet, unaltered.
-One of the principal design features of the OSI model is that since
-it is layered, this statement need only apply within a particular layer.
-That is, we expect that if we call
-\lstinline{y := udp_wrap(x)}, then \lstinline{z := udp_wrap(y)} should
-result in the unwrapped packet \lstinline{z} being exactly equal to
-the initial packet \lstinline{x}.
-If we treat them as functions, we can say that \lstinline{udp_wrap} is 
-the inverse function of \lstinline{udp_wrap}.
-% TODO: is this notation understandable? Feels somewhat clunky.
 
 \begin{figure}[htpb]
     \centering
@@ -224,9 +228,56 @@ the inverse function of \lstinline{udp_wrap}.
     \end{tikzpicture}
 
     
-    \caption{A simplified OSI model, showing the wrap and unwrap components of each layer. Arrows show flow of data. Session, presentation, and application layers are combined into a single ``higher-level'' layer---these layers are unnecessary for our use case of a simple thermometer.}
+    \caption{A simplified version of the OSI model.
+    The Open Systems Interconnection (OSI) model provides a high-level description of the standard
+implementation of the network stack.
+Shown here are the wrap and unwrap components of each layer. Arrows show flow of data. Session, presentation, and application layers are combined into a single ``higher-level'' layer---these layers are unnecessary for our use case of a simple thermometer.}
     \label{fig:network-stack}
 \end{figure}
+
+If everything works perfectly, then after a packet is encoded
+and sent over the physical transmission medium, decoding it should
+result in the same packet, unaltered.
+One of the principal design features of the OSI model is that since
+it is layered, this statement need only apply within a particular layer.
+That is, we expect that if we call
+\lstinline{y := udp_wrap(x)}, then \lstinline{z := udp_wrap(y)} should
+result in the unwrapped packet \lstinline{z} being exactly equal to
+the initial packet \lstinline{x}.
+If we treat them as functions, we can say that \lstinline{udp_wrap} is 
+the \textit{inverse function} of \lstinline{udp_wrap}.
+% TODO: is this notation understandable? Feels somewhat clunky.
+
+\subsection{UDP}
+The primary endpoint we consider in this thesis is UDP wrap, seen in the transport layer (second layer) of figure~\ref{fig:network-stack}.
+UDP wrap takes as input data passed from the application layer (top layer in figure~\ref{fig:network-stack}).
+In our case of a networked fish tank thermometer, UDP wrap will recieve the raw temperature data as an input.
+The result format of UDP wrap is shown in figure~\ref{fig:udp-wrap-rfc}.
+Encoding in the UDP layer consists of prepending a header which contains some routing information
+to the data passed in
+In figure~\ref{fig:udp-wrap-rfc}, 
+
+\begin{figure}[htb]
+    \centering
+\begin{lstlisting}[language=file]
+                  0      7 8     15 16    23 24    31
+                 +--------+--------+--------+--------+
+                 |     Source      |   Destination   |
+                 |      Port       |      Port       |
+                 +--------+--------+--------+--------+
+                 |                 |                 |
+                 |     Length      |    Checksum     |
+                 +--------+--------+--------+--------+
+                 |
+                 |          data octets ...
+                 +---------------- ...
+
+                      User Datagram Header Format
+\end{lstlisting}
+    \caption{The format , taken from RFC 768 (TODO: citation needed)}
+    \label{fig:udp-wrap-rfc}
+\end{figure}
+
 
 \section{seL4}
 
@@ -285,7 +336,7 @@ on receipt of that notification, execute some command.
 % TODO: make sure this all sounds good
 
 % TODO: split up into assumption and discussion sections?
-For the purposes of this paper, we will operate under the assumption that
+For the purposes of this thesis, we will operate under the assumption that
 the UDP layer exists in a completely isolated PD, meaning
 we disallow arbitrary (TODO: random?) changes to state by other processes;
 the only state changes that occur should be ones initiated by the UDP
@@ -341,17 +392,34 @@ better, but proofs harder
 \subsection{Ignore other layers and arbitrary state changes}
 While on a high level, the wrap endpoints can be thought of as
 functions taking in a message from the layer above, and outputting a message
-suitable for the layer below, in fact implementing them as pure functions
+suitable for the layer below, in fact implementing them as pure functions in this manner
 is impractically slow when run on hardware.
-As such, each component should ultimately be described as a change in state,
-that is a function that takes one argument: the current state, and outputs
-the resulting state.
+This slowness stems from the fact that pure functions require that all inputs and outputs be
+separate objects.
+However, in the case of UDP wrap only the new header need be created, as all subsequent
+data will remain the same.
+
+As an alternative, we can model each component of the network stack
+as a \textit{program} that changes the \textit{state} of the computer
+(the value of each variable or location in memory). % TODO: mention protection domain?
+A general definition of a program is shown in figure~\ref{fig:prog-def-det-nondet} as \lstinline{det_program}.
+Here, \lstinline{udp_wrap} (a program) will take as input the current state,
+expecting the temperature data from the application layer to be included within state in some prespecified way.
+Subsequently, \lstinline{udp_wrap} will modify the state so that just before the message lies the UDP header.
+This modified state is the output of \lstinline{udp_wrap}.
 
 % TODO: should this be a figure?
+\begin{figure}[htb]
+    \centering
 \begin{lstlisting}[language=isabelle]
-definition 's det_program :: "'s $\Rightarrow$ 's"
-definition 's ndet_program :: "'s $\Rightarrow$ 's set"
+definition 'state_space program :: "'state_space $\Rightarrow$ 's"
+fun udp_wrap :: network_state_space det_program where $\cdots$
 \end{lstlisting}
+    \caption{Definition of a deterministic and nondeterministic program, given state space \lstinline{'s}.
+    We define 
+    }
+    \label{fig:prog-def-det-nondet}
+\end{figure}
 
 There are some additional complicating factors that arise when considering
 how software will be run in-context on hardware.
@@ -378,7 +446,7 @@ Lastly, we assume that all memory accesses performed in the execution of
 the UDP wrap program will succeed, and not trap or fault.
 % TODO: this is clunky
 
-Lastly, the goal of this paper is to provide proofs and definitions for the UDP
+Lastly, the goal of this thesis is to provide proofs and definitions for the UDP
 layer.
 As such, we will not consider the execution of any lower layer, nor
 the transmission of data over physical wires.
@@ -404,7 +472,8 @@ and it is also possible to perform proofs on compiled byte code
 but such considerations are beyond the scope of the current project.
 % TODO: mention unspecified C behavior?
 
-Lastly, assume isabelle works correctly (it has a proven core)
+Lastly, as all of our proofs and definitions are expressed within the Isabelle 
+assume isabelle works correctly (it has a proven core)
 
 % \section{Tools}
 %
@@ -442,7 +511,7 @@ How do you prove your implementation correct?
         \draw [arrow] (abstract) -- (design) node[midway, left] {\rotatebox{90}{refines}};
         \draw [arrow] (invs) -- (abstract) node[midway, above] {always true for};
     \end{tikzpicture}
-    \caption{Depiction of the proof architecture explored in this paper.
+    \caption{Depiction of the proof architecture explored in this thesis.
     A high-level description of what \lstinline{udp_wrap} should do
     is described in code in the abstract specification.
     An more concrete implementation which makes some assumptions about hardware
@@ -453,7 +522,7 @@ How do you prove your implementation correct?
     abstract and design specification---namely, the design specification
     should refine the abstract specification.
     }
-    \label{fig:network-stack}
+    \label{fig:proof-structure-abstract-design}
 \end{figure}
 
 \section{Abstract specification}
@@ -681,3 +750,4 @@ See \url{https://www.overleaf.com/read/qyhckhfyfvmb} on Overleaf for useful exam
 \backmatter
 \bibliography{el-ht.bib}
 \end{document}
+
