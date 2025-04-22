@@ -168,9 +168,12 @@ result in the same packet, unaltered.
 One of the principal design features of the OSI model is that since
 it is layered, this statement need only apply within a particular layer.
 That is, we expect that if we call
-\lstinline{y := udp_wrap(x)}, then \lstinline{udp_wrap(y)} should
-result in exactly the initial packet \lstinline{x}.
-% TODO: is this notation understandable?
+\lstinline{y := udp_wrap(x)}, then \lstinline{z := udp_wrap(y)} should
+result in the unwrapped packet \lstinline{z} being exactly equal to
+the initial packet \lstinline{x}.
+If we treat them as functions, we can say that \lstinline{udp_wrap} is 
+the inverse function of \lstinline{udp_wrap}.
+% TODO: is this notation understandable? Feels somewhat clunky.
 
 \begin{figure}[htpb]
     \centering
