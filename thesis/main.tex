@@ -339,26 +339,70 @@ better, but proofs harder
 \chapter{Our Work}
 \section{Simplifying assumptions}
 \subsection{Ignore other layers and arbitrary state changes}
-\begin{itemize}
-    \item discuss what was mentioned earlier
-    \item UDP doesn't care about correct execution of other layers---it should work correctly within its layer
-    \item suppress other layers for now
-    \item this means we can treat our code as running contiguously without state changes coming from external events (this will have to be dealt with more carefully when other layers are introduced and we have more PDs).
-        Treat UDP wrap as running uninterrupted until completion.
-        We have access to all our memory also, and will not trap or fault on memory access.
-    % \item all layers below UDP work (prove this later)
-    % \item hardware assumptions.
-    %     \begin{itemize}
-    %         \item no packets dropped
-    %         \item no packets corrupted
-    %         \item packets are received in the order they are sent
-    %     \end{itemize}
-\end{itemize}
+While on a high level, the wrap endpoints can be thought of as
+functions taking in a message from the layer above, and outputting a message
+suitable for the layer below, in fact implementing them as pure functions
+is impractically slow when run on hardware.
+As such, each component should ultimately be described as a change in state,
+that is a function that takes one argument: the current state, and outputs
+the resulting state.
+
+% TODO: should this be a figure?
+\begin{lstlisting}[language=isabelle]
+definition 's det_program :: "'s $\Rightarrow$ 's"
+definition 's ndet_program :: "'s $\Rightarrow$ 's set"
+\end{lstlisting}
+
+There are some additional complicating factors that arise when considering
+how software will be run in-context on hardware.
+Namely, the microkernel must be able preempt the execution
+of a particular program at any time.
+Afterwards, the microkernel may either resume execution of the program,
+or execute another program.
+Consequently, we cannot rely on each command of our program
+being run in order without interruptions.
+Since seL4 is a verified microkernel, there exist proofs that the microkernel
+will behave reasonably---that is, any interruptions to program execution
+happen in a well-defined way, and as discussed above, memory access must
+be explicitly specified, meaning only the PDs with explicit access to
+shared memory regions can possibly influence the state of another PD.
+
+While we eventually intend to invoke the seL4 proofs to show that any transformation of state by other PDs will happen in expected ways that do not cause issues,
+for this work we make the assumption that
+our UDP wrap program will run uninterrupted, without arbitrary changes
+to state.
+This is equivalent to assuming that the UDP wrap program runs within
+a PD without any shared memory regions, and that the seL4 microkernel itself
+will not modify our program's state nor meaningfully interrupt execution.
+Lastly, we assume that all memory accesses performed in the execution of
+the UDP wrap program will succeed, and not trap or fault.
+% TODO: this is clunky
+
+Lastly, the goal of this paper is to provide proofs and definitions for the UDP
+layer.
+As such, we will not consider the execution of any lower layer, nor
+the transmission of data over physical wires.
+Rather, we assume that no packets will be dropped, corrupted, or received in
+a different order than sent.
+Given such conditions, our implementations of the UDP layer should work correctly.
+
 \subsection{C compiler and hardware}
-\begin{itemize}
-    \item byte size: 8 bits, etc.
-    \item C compiler works correctly
-\end{itemize}
+As described in RFC 768, the UDP specification does precisely describe
+the arrangement of bits within a UDP packet.
+However, RFC 768 does not make any assumptions about word size on the computer.
+In our case, we will divide any packet into 8-bit bytes,
+which necessitates some assumptions about hardware.
+Fortunately, all modern hardware can accommodate separation of data
+into 8-bit bytes.
+% TODO: clunky?
+
+As we introduce proofs about our implementation in C of UDP wrap,
+we will also have to assume that C compiler is correct.
+There do exist verified C compilers (TODO: citation needed),
+and it is also possible to perform proofs on compiled byte code
+(this is the bottommost layer in seL4's verification chain),
+but such considerations are beyond the scope of the current project.
+% TODO: mention unspecified C behavior?
 
 Lastly, assume isabelle works correctly (it has a proven core)
 
