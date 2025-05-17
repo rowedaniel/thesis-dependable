@@ -838,48 +838,287 @@ or meaningful, not specify exactly what the behavior is.
 
 \section{Refinement}
 
-\section{Ongoing and future work}
-\subsection{Convert C to Simpl}
-\begin{itemize}
-    \item show some example conversions
-    \item discuss need to switch to more seL4 way of doing things?
-\end{itemize}
+The largest part of our proof is refinement, where we show that
+the design specification is a valid implementation of the abstract specification.
+Continuing from the description of refinement above,
+when we say that the design specification of UDP wrap refines the
+abstract specification of UDP, we mean that
+every possible result of the design version of UDP wrap is an allowed
+result of the abstract specification version.
+
+The abstract and design specifications have now been defined, meaning the
+only remaining definition needed to create a statement of refinement is
+what it means for a result in the design specification to be ``allowed''
+by a result in the abstract specification.
+This entails determining a relationship between messages and connections
+in the design specification and messages and connections in the abstract setting.
+
+\begin{figure}[h]
+    \centering
+\begin{nlisting}
+inductive relation_message' :: "message $\Rightarrow$ message $\Rightarrow$ bool" where
+same:         "relation_message' ms ms" |
+split:        "(relation_message' ms1 ms1' $\land$
+                relation_message' ms2 ms2') $\Longrightarrow$
+               relation_message' (ms1 $@$ ms2) (ms1' $@$ ms2')" |
+step_combine: "((m2' $<$ 2^8) $\land$
+                (m = m1' $*$ 2^8 $+$ m2) $\land$
+                (relation_message' ms ms')) $\Longrightarrow$ 
+               (relation_message' (m $\#$ ms) (m1' $\#$ m2' $\#$ ms'))"
+definition relation_message :: "message $\Rightarrow$ message_d $\Rightarrow$ bool" where
+  "relation_message ms ms' = (relation_message' ms (map unat ms'))"
+
+lemma "relation_message [260] [1,4]"
+  by (simp add: same step_combine relation_message_def)
+\end{nlisting}
+    \caption{Relation between an abstract and a design message.
+    \lstinline{relation_message'} is property on a pair of abstract
+    messages that encapsulate the fact that two abstract messages could
+    correspond to the same data, due to there being no limit as to how large a natural number can be.
+    Lastly, an example proof for a relation between an abstract and a design message is shown.
+    }
+    \label{fig:rel-msg}
+\end{figure}
+
+The relation between abstract and design messages is the harder of the two to define,
+owing to the fact that abstract messages are lists of arbitrary-size natural numbers, while
+design messages are lists of 8-bit words where no value can exceed
+$2^8-1 = 255$.
+As discussed previously, this means that several fields, such as the port numbers in the header,
+will be divided into several items in the design message, but remain as one item in the abstract
+message.
+The goal of the \lstinline{relation_message'} property defined in lines 1 through 9 of
+figure~\ref{fig:rel-msg} is to clarify exactly when two abstract messages contain the same
+information.
+For instance, consider the abstract messages $[260]$ and $[1, 4]$.
+Since $260 = 1 \cdot 256 + 4$, both messages can represent the same information,
+and likewise it is possible to prove that they are related under \lstinline{relation_message'}.
+Such a proof is provided in lines 13 and 14 in figure~\ref{fig:rel-msg}.
+
+\begin{figure}[h]
+    \centering
+    \begin{lstlisting}[language=isabelle]
+fun ip_addr_d_to_nat :: "ip_addr_d $\Rightarrow$ nat" where
+  "ip_addr_d_to_nat (a,b,c,d,e,f,g,h) = (unat a)*2^(16*7) +
+                                        (unat b)*2^(16*6) +
+                                        $\vdots$
+                                        (unat h)*2^(16*0)"
+definition relation_socket :: "socket $\Rightarrow$ socket_d $\Rightarrow$ bool"
+  where "relation_socket sock sock_d $\equiv$ (
+    (ip_addr_a sock = ip_addr_d_to_nat (ip_addr_d sock_d)) $\land$
+    (port_a sock = unat (port_d sock_d))
+        )"
+definition relation_connection :: "connection $\Rightarrow$ connection_d
+                                   $\Rightarrow$ bool"
+  where "relation_connection con con_d $\equiv$ (
+              relation_socket (src_a con) (src_d con_d) $\land$
+              relation_socket (dst_a con) (dst_d con_d)
+        )"
+    \end{lstlisting}
+    \caption{Relation between an abstract and a design connection.
+    This relation relies on several smaller conversions from 8 and 16-bit words to natural numbers.
+    }
+    \label{fig:rel-conn}
+\end{figure}
+
+The relation between abstract and design connections is more easily followed than that of messages.
+A connection is a pair of sockets, and a socket is an IP address and a port number.
+Thus, the natural relation is that all constituent abstract IP addresses and port numbers in a connection
+are related to their concrete counterparts.
+For port numbers, we can directly convert from 16-bit word port numbers in the design specification
+to natural numbers in the abstract specification.
+For IP addresses, it is slightly more complicated, since in the design specification,
+an IP address is represented as a sequence of 8 16-bit words, rather than one 128-bit word.
+As such, we offset each word in the sequence by 8 bits by multiplying by powers of $2^16$,
+which results in a single natural number which can be directly compared to the abstract specification.
+
+\begin{figure}[ht]
+    \centering
+\begin{lstlisting}[language=isabelle]
+theorem refinement:
+  assumes "length msg $=$ length msg_d" and
+          "relation_message msg msg_d" and
+          "relation_connection conn conn_d"
+  shows "relation_message (udp_wrap msg conn) (udp_wrap_d msg_d conn_d)"
+  apply simp
+  proof -
+  have "relation_socket (Network_A.src conn) (Network_D.src conn_d)"
+    using assms relation_connection_def
+    by (simp)
+  $\vdots$
+  thus "relation_message
+     (Network_A.port (Network_A.src conn) #
+      Network_A.port (Network_A.dst conn) #
+      (length msg + Udp_A.udp_hdr_sz) #
+      0 #
+      msg)
+     (porttomsgd (Network_D.port (Network_D.src conn_d)) @
+      porttomsgd (Network_D.port (Network_D.dst conn_d)) @
+      w16tomsg (word_of_nat (length msg_d) + 
+                word_of_nat Network_Consts.udp_hdr_sz) @
+      w16tomsg 0 @
+      msg_d)"
+    using 1 relation_message_def split
+    by fastforce
+\end{lstlisting}
+    \caption{Formal statement of refinement. Proof partially omitted due to length.
+    The format of the proof uses the Isar-style of describing the assumptions and 
+    goal of a theorem.
+    Here, we show that if the abstract and design messages are the same length and are related,
+    and the design and abstract connections are related, then
+    the result of the abstract and design versions of UDP wrap should also be related.
+    }
+    \label{fig:refine}
+\end{figure}
+
+Combining both the relation between abstract and design messages,
+and the relation between abstract and design connections,
+we are able to formulate the statement of refinement for UDP wrap.
+The statement, along with a truncated proof, is shown in figure~\ref{fig:refine}.
+While truncated in the figure, the proof is complete, albeit relying on some
+properties of conversion between 8-bit words, 16-bit words, and natural numbers.
+Hence, we have shown that the design specification refines the abstract specification for
+UDP wrap.
+
+
+\subsection{Ongoing work: integrating C code}
+
+\begin{figure}[h]
+    \centering
+\begin{lstlisting}
+external_file "file.c"
+install_C_file "file.c"
+context playground_global_addresses
+begin
+
+thm function_def
+
+end
+\end{lstlisting}
+    \caption{Example conversion of C code to SIMPL}
+    \label{fig:convert-c}
+\end{figure}
+
+We have shown refinement, however we have shown refinement between two
+specifications defined solely in Isabelle;
+while the design specification is more similar to what would run on hardware,
+it is still not production-ready code.
+Hence, the next step in the proof of the UDP layer ought to involve
+an efficient implementation written in C.
+We will then show that the C implementation refines the design specification.
+While we have not yet begun to show refinement for this case,
+we have experimented with converting C code into SIMPL, an imperative
+language defined in Isabelle.
+The conversion process (seen in figure~\ref{fig:convert-c}) was created for use
+in seL4, and is formally verified.
+
+    \begin{figure}
+        \centering
+        \scalebox{0.6}{
+        \begin{tikzpicture}[node distance=4cm]
+            % styles
+            \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=3cm, text centered, draw=black]
+            \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+            \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+    
+            % wrap
+            \node (abstract) [cell, fill=cyan!80] {\LARGE abstract specification};
+            \node (invs) [cell, fill=orange!80, right=120pt of abstract] {\LARGE invariants};
+            \node (design) [cell, fill=green!80, below=60pt of abstract] {\LARGE design specification};
+            \node (cspec) [cell, fill=lavender!80, below=60pt of design] {\LARGE c specification};
+            \node (ccode) [cell, fill=lavender!80, right=120pt of cspec] {\LARGE c code};
+            
+            % \node [color=red] at (0, -150pt) {blocked access};
+            % \node [color=green!200] at (-115pt, -180pt) {good access};
+    
+            % flow of information
+            \draw [arrow] (abstract) -- (design) node[midway, left] {\rotatebox{90}{refines}};
+            \draw [arrow] (design) -- (cspec) node[midway, left] {\rotatebox{90}{refines}};
+            \draw [arrow] (invs) -- (abstract) node[midway, above] {always true for};
+            \draw [arrow] (ccode) -- (cspec) node[midway, above] {translates to};
+        \end{tikzpicture}}
+        \caption{Updated proof architecture, including C code and a C specification.}
+        \label{fig:proof-structure-c}
+    \end{figure}
+
+Through this process, we will modify the proof architecture to follow figure~\ref{fig:proof-structure-c}.
+The C code is converted into a C specification, expressed in Isabelle as a SIMPL program.
+This conversion exactly preserves all behaviors of the C code.
+Next, we show that the C specification refines the design specification.
+Since refinement is transitive, this means the C specification refines the abstract specification,
+and is thus a correct implementation of UDP wrap.
 
 \chapter{Conclusions}
-\section{Conclusions}
-\section{Future Work}
-\begin{itemize}
-    \item Make abstract and design specs for other layers
-    \item c conversion for other layers
-    \item c conversion for UDP?
-    \item refinement for other layers
-    \item seL4 proofs (specifically, PD stuff)
-    \item introduce hardware problems
-        \begin{itemize}
-            \item think of this as relaxing assumptions about hardware
-            \item e.g. packets won't be corrupted, but could arrive in weird orders
-            \item note that there's probably a limit to this,
-                since a packet could randomly corrupt to
-                look completely legit---it's just very
-                unlikely with all the error correction
-                going on.
-                Thus, we could model this by, e.g.,
-                saying that only a limited arbitrary subset
-                of the packet can be corrupted;
-                or by saying any part of the packet other
-                than the CRC can be corrupted.
-                Pros/cons to each.
-        \end{itemize}
-    \item introduce linear temporal logic to have some ``always eventually''-type stuff
-\end{itemize}
-\section{Discussion}
+In this thesis, we have begun the process of formal verification of UDP wrap.
+We have done this in four steps.
+First, we created an abstract specification which precisely defines
+how we expect UDP wrap to work.
+Next, we created a design specification of UDP wrap which operates more alike to hardware.
+Third, we showed that various desirable invariants are satisfied by the abstract specification.
+Finally, we showed that the design specification is a refinement of the abstract specification.
+Additionally, we discussed possibilities for how integration of C code might work in the
+context of these proofs.
 
-\chapter{A Day in the Life of}
-\begin{itemize}
-    \item some isabelle guidelines
-\end{itemize}
+It bears mentioning that the abstract specification is unwieldy
+compared to the design specification
+when it comes to IP addresses---Isabelle represents natural numbers using standard
+Peano axioms, % TODO: need citation
+which require increased computational power proportional to the magnitude of the number.
+As such, numbers on the order of $2^128$ are too large for most if not all computers.
+Numbers on the order of only $2^16$, however, are manageable even when simultaneously
+using eight of them.
+Consequently, it is computationally infeasible to, say, convert the design IP address
+$(1,2,3,4,5,6,7,8)$ to an abstract IP address.
+This poses no issues for the UDP layer, which need not manipulate IP addresses,
+but could pose problems when extending 
+
+The approach used here of specifications, invariants, and refinement
+has been successful for our scope of verification of UDP wrap.
+While this approach is already familiar, having been used extensively in the proof of seL4,
+it is promising that it seems to apply to our use case of a networked temperature sensor as well.
+We hope to extend our refinement to the level of C code, and further expand to other parts of the
+network stack in future work.
+
+\chapter{Future Work}
+As stated, the likely next step for the eventual verification of a networked temperate sensor
+is to verify that C code refines an abstract specification.
+As discussed above, this presents several additional challenges, and will
+likely require a number of new assumptions, including assumptions about
+hardware correctness, correctness of the C compiler, and assumptions about the function of seL4.
+
+Several particularly difficult but fruitful possibilities lie in a close examination of
+seL4's PDs.
+PDs provide a very strong level of security and isolation, which may prove necessary for proofs.
+However, they do so at a costly overhead, as seL4 must manage all PDs carefully.
+One question we look to answer in coming research is whether it is necessary
+for full formal verification for all layers of the network stack to exist in separate PDs,
+or if they can be combined into a single large PD, thus achieving better performance.
+
+Additionally, we will likely encounter new challenges when attempting to verify
+other layers of the network stack beyond the UDP layer.
+For instance, as discussed above, large IP address numbers are unlikely to be usable
+in our present definition of the abstract specification.
+However, certain IP addresses are reserved, and have special meanings or use as defined in
+the corresponding RFC documents.
+This could cause issues where the abstract specification must define a particular constant
+IP address, but this definition requires an impossibly large number of resources be allotted to
+Isabelle.
+
+Lastly, another important avenue of discussion is that the UDP layer does not make many assertions about integrity or confidentiality.
+For instance, when using UDP, no guarantee is provided that packets sent in a particular order
+will be received in that order.
+Unlike UDP, TCP (an alternate protocol for the transport layer) does provide many such guarantees,
+and is correspondingly more complex. We anticipate that any verification of TCP will require
+a careful treatment of state, and in addition will likely require the use of linear temporal logic
+to make statements such as ``a message sent will always eventually be received.''
 
 
+
+
+
+% If you want to include appendices, just use the \appendix command and then make chapters as normal
+\appendix
+\chapter{Appendix}
 \section{Isabelle session management}
 When using Isabelle, it is frequently necessary to invoke several libraries and theories,
 some of which may in turn depend on each other.
