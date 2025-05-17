@@ -81,8 +81,8 @@ literate=
 
 \maketitle
 
-\chapter{Acknowledgement}
-`This page is for making acknowledgements that have a direct bearing on the HT and is not for indulging in routine gestures of politeness or sentimental attitudinising. In all things, the candidate should be guided by good taste and good sense' \pgcitep{data-refinement}{2}. % Note also the command for citing a source and a page number. 
+% \chapter{Acknowledgement}
+% `This page is for making acknowledgements that have a direct bearing on the HT and is not for indulging in routine gestures of politeness or sentimental attitudinising. In all things, the candidate should be guided by good taste and good sense' \pgcitep{data-refinement}{2}. % Note also the command for citing a source and a page number. 
 
 \begin{abstract}
   % citations look like \citep{ell-ht-format}.
@@ -392,46 +392,13 @@ data can be written or read from either of the adjacent layers at any time.
 This case will necessitate some proof that the behaviors of the two layers
 do not interfere within this shared region.
 Standardizing information flow using a system of queues along with 
-communicating sequential processes (TODO: citation needed)
+communicating sequential processes (\cite{csp})
 will likely be useful in this case.
 
-TODO: could mention that putting them all into the same PD could make performance
-better, but proofs harder
-%
-% \subsection{Notation} % maybe combine with the tools section?
-% TODO: remove this section, I think
-% \begin{itemize}
-%     \item refinement
-%     \item Hoare triples (TODO: figure out right notation)
-%         \[
-%         \{|
-%             \lambda s. 
-%         |\}
-%         .\] 
-%
-%     \item big semantics:
-%         \[
-%             (c,s) \Rightarrow t
-%         \] 
-%         means ``command $c$ starting from state $s$ results in state $t$.''
-%     \item small step semantics
-%     \item $\Gamma$? Not sure yet
-%     \item $\top \equiv \lambda s. true$ and $\bot \equiv \lambda s. false$
-%     \item $x \equiv y$ ``$x$ is defined as $y$''
-%     \item $x:=y$ ``assign $x$ to $y$.''
-% \end{itemize}
-%
-% \section{Goals}
-% TODO: remove this section, I think
-% \begin{itemize}
-%     \item ultimately, verify entire network stack
-%     \item for now, invariant for abstract UDP saying wrap and unwrap compose to identity function.
-% \end{itemize}
+% I suggest a new section here called "This work" or "Project Goals" or some such. Here say this: The goal of this thesis is to provide proofs and definitions for the UDP layer. Specifically, our goal is to show that given such conditions, our implementations of the UDP layer will always function correctly.
 
-
-\chapter{Our Work}
-\section{Simplifying assumptions}
-\subsection{Ignore other layers and arbitrary state changes}
+\chapter{Simplifying assumptions}
+\section{State}
 While on a high level, the wrap endpoints can be thought of as
 functions taking in a packet of data from the layer above, and outputting a 
 new packet of data suitable for the layer below,
@@ -528,17 +495,9 @@ but such considerations are beyond the scope of the current project.
 % TODO: mention unspecified C behavior?
 
 Finally, as all of our proofs and definitions are expressed within the Isabelle 
-assume isabelle works correctly (it has a proven core)
+assume Isabelle works correctly (it has a proven core)
 
-% \section{Tools}
-%
-% \begin{itemize}
-%     \item Hoare logic / Hoare triples
-%     \item refinement book
-%     \item isabelle
-%     \item seL4 stuff (nondeterministic monads, corres, c-parser?)
-% \end{itemize}
-%
+\chapter{Results}
 \section{Proof architecture}
 While formal verification has been discussed prior,
 the exact structure of our proofs merits discussion.
@@ -964,12 +923,8 @@ session RefineAD in "RefineAD" = HOL +
     \label{fig:isabelle-root-file-proof}
 \end{figure}
 
+\section{Installation notes}
 
-% If you want to include appendices, just use the \appendix command and then make chapters as normal
-\appendix
-\chapter{Installation notes}
-
-See \url{https://www.overleaf.com/read/qyhckhfyfvmb} on Overleaf for useful examples of formatted text, typing in IPA, etc.
 
 % For the bibliography style, I load `sp.bst', the style used by the LSA in the journal `Semantics and Pragmatics'. For how to include in-line citations with page numbers and other conventions, refer to nus-el-ht.sty. 
 \backmatter
