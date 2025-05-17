@@ -1,8 +1,14 @@
-@misc{data-refinement,
-	author = {{Willem-Paul de Roever and Kai Engelhardt}},
-    title = {Data Refinement: Model-Oriented Proof Methods and their Comparison},
-    month = {March},
-    year = {1998},
+@Book{data-refinement,
+  author =       {Willem-Paul de Roever
+                  and Kai Engelhardt},
+  title =        {Data Refinement: Model-Oriented Proof Methods and
+                  Their Comparison},
+  publisher =    {Cambridge University Press},
+  year =         1998,
+  series =       {Cambridge Tracts in Theoretical Computer Science},
+  address =      {Cambridge, UK},
+  isbn =         {0-521-64170-5},
+  doi =          {10.1017/CBO9780511663079}
 }
 
 @Article{Klein2014Verification,
@@ -23,7 +29,148 @@
   month =        feb
 }
 
+@inproceedings{wenzel2008isabelle,
+  title={The isabelle framework},
+  author={Wenzel, Makarius and Paulson, Lawrence C and Nipkow, Tobias},
+  booktitle={International Conference on Theorem Proving in Higher Order Logics},
+  pages={33--38},
+  year={2008},
+  organization={Springer}
+}
+
+
+@Manual{Amlogic2016S905,
+  title =        {S905 Datasheet, Revision 1.1.4},
+  organization = {Amlogic, Inc.},
+  address =      {Santa Clara, California, USA},
+  month =        jun,
+  year =         2016
+}
+
+@book{dijkstra-quote,
+  title={Software Engineering: Report of a conference sponsored by the NATO Science Committee, Garmisch, Germany, 7-11 Oct. 1968, Brussels, Scientific Affairs Division, NATO},
+  author={Naur, Peter and Randell, Brian},
+  year={1969},
+  publisher={NATO SCIENCE COMMMITTEE}
+}
+
+@Unpublished{kaegi-early,
+  author =       {K\"{a}gi, Alain
+                  and Birdwell, Aubrey
+                  and Wilde, Caitlyn
+                  and Mache, Jens
+                  and Weiss, Richard},
+  title =        {Early Experiences Proving the Correctness of a
+                  Network Stack Implementation},
+  howpublished = {Abstract presented at the {seL4} Summit 2022},
+  note =         {\url{https://sel4.systems/Foundation/Summit/2022/abstracts2022#a-Network-stack-implementation},
+                  retrieved 17 January 2024},
+  year =         2022,
+  month =        oct
+}
+
+% TBD: fill pages when available
+
+@InProceedings{kaegi-simple,
+  author =       {K\"{a}gi, Alain
+                  and Wilde, Caitlyn
+                  and Greenlaw Rollins, Wyeth
+                  and Overcast, Levi
+                  and Birdwell, Aubrey
+                  and Fowler, Andrew
+                  and Weiss, Richard},
+  title =        {The Case for the Simpler Cyber-Physical System}
+}
+
+
+@Article{csp,
+  author =       {Hoare, C. A. R.},
+  title =        {Communicating Sequential Processes},
+  journal =      j-CACM,
+  year =         1978,
+  volume =       21,
+  number =       8,
+  pages =        {666--677},
+  month =        aug,
+  url =          {https://doi.org/10.1145/359576.359585}
+}
+
+@article{hoare-triple,
+author = {Hoare, C. A. R.},
+title = {An axiomatic basis for computer programming},
+year = {1969},
+issue_date = {Oct. 1969},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {12},
+number = {10},
+issn = {0001-0782},
+url = {https://doi.org/10.1145/363235.363259},
+doi = {10.1145/363235.363259},
+abstract = {In this paper an attempt is made to explore the logical foundations of computer programming by use of techniques which were first applied in the study of geometry and have later been extended to other branches of mathematics. This involves the elucidation of sets of axioms and rules of inference which can be used in proofs of the properties of computer programs. Examples are given of such axioms and rules, and a formal proof of a simple theorem is displayed. Finally, it is argued that important advantage, both theoretical and practical, may follow from a pursuance of these topics.},
+journal = {Commun. ACM},
+month = oct,
+pages = {576–580},
+numpages = {5},
+keywords = {theory of programming' proofs of programs, programming language design, program documentation, machine-independent programming, formal language definition, axiomatic method}
+}
+
+@misc{rfc768,
+    series =    {Request for Comments},
+    number =    768,
+    howpublished =  {RFC 768},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC0768},
+    url =       {https://www.rfc-editor.org/info/rfc768},
+    author =    {},
+    title =     {{User Datagram Protocol}},
+    pagetotal = 3,
+    year =      1980,
+    month =     aug,
+    abstract =  {},
+}
+
+@inproceedings{compcert,
+author = {Kästner, Daniel and Leroy, Xavier and Blazy, Sandrine and Schommer, Bernhard and Pister, Markus and Ferdinand, Christian},
+year = {2016},
+month = {01},
+pages = {},
+title = {CompCert - A Formally Verified Optimizing Compiler}
+}
+
+@article{Word_Lib-AFP,
+  author  = {Joel Beeren and Matthew Fernandez and Xin Gao and Gerwin Klein and Rafal Kolanski and Japheth Lim and Corey Lewis and Daniel Matichuk and Thomas Sewell},
+  title   = {Finite Machine Word Library},
+  journal = {Archive of Formal Proofs},
+  month   = {June},
+  year    = {2016},
+  note    = {\url{https://isa-afp.org/entries/Word_Lib.html},
+             Formal proof development},
+  ISSN    = {2150-914x},
+}
+
+@Inbook{hol-hoare-lib,
+author="Nipkow, Tobias",
+editor="Schwichtenberg, Helmut
+and Steinbr{\"u}ggen, Ralf",
+title="Hoare Logics in Isabelle/HOL",
+bookTitle="Proof and System-Reliability",
+year="2002",
+publisher="Springer Netherlands",
+address="Dordrecht",
+pages="341--367",
+abstract="This paper describes Hoare logics for a number of imperative language constructs, from while-loops via exceptions to mutually recursive procedures. Both partial and total correctness are treated. In particular a proof system for total correctness of recursive procedures in the presence of unbounded nondeterminism is presented. All systems are formalized and shown to be sound and complete in the theorem prover Isabelle/HOL.",
+isbn="978-94-010-0413-8",
+doi="10.1007/978-94-010-0413-8_11",
+url="https://doi.org/10.1007/978-94-010-0413-8_11"
+}
+
+
+
+
+
 
 
 %     note = {URL: \url{http://www.fas.nus.edu.sg/ell/download/Undergraduate/Format_EL_AY2014-15.pdf}}
 % }
+
