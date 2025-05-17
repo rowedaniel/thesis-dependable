@@ -787,15 +787,53 @@ lemma compose_to_id:
     \label{fig:inv-unwrap-wrap}
 \end{figure}
 
-\begin{itemize}
-    \item mention that we can't prove this invariant yet, since we need
-        to define unwrap?
-    \item give some nice formal definitions of Hoare triples
-        from semantics.
-    \item discuss how the triples themselves can be composed to get bigger triples
-    \item mention that this is from the HOL-Hoare library or whatever
-\end{itemize}
+The \lstinline{compose_to_id} invariant states that, given the original message
+and connection are well-formed (that is, the port is an allowed port, etc.),
+then after you wrap and unwrap the message, the result should
+be identical to the starting message.
 
+One of the advantages of Hoare triples is that they can be composed.
+Hence, if we had a similar Hoare triple stating that for the IP layer,
+taking an arbitrary well-formed message and connection,
+wrapping the message and subsequently unwrapping it results in the original
+message (which is exactly what we have in figure~\ref{fig:inv-unwrap-wrap},
+but for the IP layer), then we can insert the IP wrap and unwrap
+statements in between the UDP wrap and unwrap statements while
+still preserving the outer pre- and post-conditions.
+In this manner, we hope that proofs for a single layer can combine
+to obtain greater proofs about the network stack as a whole.
+
+\begin{figure}
+    \centering
+\begin{lstlisting}[language=isabelle]
+lemma larger_after_wrap: "VARS buf_up buf_down conn
+&\color{green!200}{\{True\}}&
+&\color{cyan!200}{buf\_down := udp\_wrap buf\_up conn}&
+&\color{blue!180}{\{length buf\_down > length buf\_up\}}&
+"
+  apply (vcg)
+  by (simp)
+\end{lstlisting}
+    \caption{Invariant saying that UDP wrap will always increase the size
+        of a message.}
+    \label{fig:inv-wrap-inc}
+\end{figure}
+
+An example of a more easily provable invariant can be seen in figure~\ref{fig:inv-wrap-inc}. This invariant has a trivial precondition,
+and shows that after execution of UDP wrap, the resulting
+message should have grown in length.
+While perhaps a less obviously useful invariant,
+it provides a sanity check that the UDP wrap function
+has added a nonempty header.
+This invariant can be composed in exactly the same way with other
+invariants, for example to show that the result of a UDP wrap followed
+by an IP wrap will also increase the length of the message.
+
+In general, we expect the role of invariants to be complementary to the
+abstract specification---the abstract specification is the definitive
+definition of how our program should behave.
+The purpose of an invariant is to say that that behavior is interesting
+or meaningful, not specify exactly what the behavior is.
 
 
 \section{Refinement}
