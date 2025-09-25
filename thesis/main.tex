@@ -1,4 +1,4 @@
-% A template for an Honours Thesis in English Language, NUS: adapted from one by Derek Lim (2016), itself adapted from a template for Carleton College comps papers by Andrew Gainer-Dewar (2013). 
+% A template for an Honours Thesis in English Language, NUS: adapted from one by Derek Lim (2016), itself adapted from a template for Carleton College comps papers by Andrew Gainer-Dewar (2013).
 % This work is licensed under the Creative Commons Attribution 4.0 International License.
 % To view a copy of this licence, visit http://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 \documentclass[twoside]{memoir}
@@ -6,18 +6,18 @@
 
 % The Latin Modern font is a modernised replacement for the classic Computer Modern. Feel free to replace this with a different font package.
 \usepackage{lmodern}
-% Hyperref enables click-through hyperlinks in your PDF. The hyphens option indicates where to break long URLs. 
+% Hyperref enables click-through hyperlinks in your PDF. The hyphens option indicates where to break long URLs.
 \PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
-% We use setspace to implement double-spacing, but with a specific command to leave quotes single-spaced. 
+% We use setspace to implement double-spacing, but with a specific command to leave quotes single-spaced.
 \DisemulatePackage{setspace}\usepackage{setspace}
 \expandafter\def\expandafter\quote\expandafter{\quote\singlespacing}
 	\doublespacing
 
 % tikz stuff
-\usepackage[usenames,dvipsnames]{color}    
+\usepackage[usenames,dvipsnames]{color}
 \usepackage[table]{xcolor}
 \usepackage{themecolors}
-\usepackage{tikz} 
+\usepackage{tikz}
 \usetikzlibrary{positioning, shapes.multipart, arrows, arrows.meta, shadows, backgrounds, fit}
 
 % code blocks
@@ -41,10 +41,10 @@
 }
 \lstdefinestyle{tree}{
 literate=
-    {├}{{\smash{\raisebox{-1ex}{\rule{1pt}{\baselineskip}}}\raisebox{0.5ex}{\rule{1ex}{1pt}}}}1 
-    {└}{{\smash{\raisebox{0.5ex}{\rule{1pt}{\dimexpr\baselineskip-1.5ex}}}\raisebox{0.5ex}{\rule{1ex}{1pt}}}}1 
-    {─}{{\raisebox{0.5ex}{\rule{1.5ex}{1pt}}}}1 
-    {│}{{\smash{\raisebox{-1ex}{\rule{1pt}{\baselineskip}}}\raisebox{0.5ex}{\rule{1ex}{0pt}}}}1 
+    {├}{{\smash{\raisebox{-1ex}{\rule{1pt}{\baselineskip}}}\raisebox{0.5ex}{\rule{1ex}{1pt}}}}1
+    {└}{{\smash{\raisebox{0.5ex}{\rule{1pt}{\dimexpr\baselineskip-1.5ex}}}\raisebox{0.5ex}{\rule{1ex}{1pt}}}}1
+    {─}{{\raisebox{0.5ex}{\rule{1.5ex}{1pt}}}}1
+    {│}{{\smash{\raisebox{-1ex}{\rule{1pt}{\baselineskip}}}\raisebox{0.5ex}{\rule{1ex}{0pt}}}}1
 }
 \lstset{%
   language=isabelle,
@@ -59,30 +59,30 @@ literate=
 \lstnewenvironment{nlisting}{\lstset{numbers=left}}{}
 
 
-% For typesetting and labelling examples, incl. glossed examples. 
-% \usepackage{expex} 
+% For typesetting and labelling examples, incl. glossed examples.
+% \usepackage{expex}
 % 	\lingset{Everyex=\singlespace}
 
-% Titling commands. 
+% Titling commands.
 \title{Stacking Correspondence: Towards Formal Verification of a Network Stack}
 \author{Daniel Neshyba-Rowe}
 \supervisor {Alain K{\"a}gi}
 \degree{Bachelor of Arts with Honors}
-\faculty{Mathematical Sciences faculty} % TODO: figure out if this is right
-\dept{Computer Science} % TODO: should this be CS and Math?
-% \date % TODO: set date?
+\faculty{Mathematical Sciences faculty}
+\dept{Computer Science}
+\date{Spring 2025}
 
 \begin{document}
 % First, we go into "front matter" mode.
 % Among other things, this gives us Roman page numbers.
 \frontmatter
 
-% We tell LaTeX to make a title page, sections for acknowledgements, the abstract, and the table of contents (important!). 
+% We tell LaTeX to make a title page, sections for acknowledgements, the abstract, and the table of contents (important!).
 
 \maketitle
 
 % \chapter{Acknowledgement}
-% `This page is for making acknowledgements that have a direct bearing on the HT and is not for indulging in routine gestures of politeness or sentimental attitudinising. In all things, the candidate should be guided by good taste and good sense' \pgcitep{data-refinement}{2}. % Note also the command for citing a source and a page number. 
+% `This page is for making acknowledgements that have a direct bearing on the HT and is not for indulging in routine gestures of politeness or sentimental attitudinising. In all things, the candidate should be guided by good taste and good sense' \pgcitep{data-refinement}{2}. % Note also the command for citing a source and a page number.
 
 \begin{abstract}
   % citations look like \citep{ell-ht-format}.
@@ -111,20 +111,16 @@ literate=
       In 2009, seL4 was released as the first
       industry-grade microkernel which was formally verified to be correct.
       In our work, we hypothesize that it is possible
-      to leverage seL4 to create a fully-functional embedded system application running 
-      % TODO: from Alain: consider dropping "application"? "System application" seems redundant
+      to leverage seL4 to create a fully-functional embedded system running
       Internet Protocol version 6 (IPv6)
       that is verified at all software levels---something thought to be
       impossible in practice prior to the release of seL4.
       In our previous work, we designed and built the C code for a networked
       fish tank thermometer as a proof-of-concept of nontrivial complexity.
       Much of the complexity lies in the network stack, which consists of a number of components.
-      % TODO: start highlight
-      Here, we focus on the components of the network stack that constitute a particular layer: the User Datagram Protocol (UDP) layer, 
-      continuing the verification process
-      by formally defining specifications and refinement steps,
-      and applying them to the UDP layer.
-      % TODO: end highlight. from Alain: Suggested rewrite is "Here, we focus on one specific component of the network called the User Datagram Protocol (UDP) layer. Inspired by seL4 verification effort, we adopt a verification process that includes formal specifications and refinement steps proving specific relationships across these specifications.
+      Here, we focus a specific component of the network stack called the User Datagram Protocol (UDP) layer.
+      Inspired by the seL4 verification effort,
+      we define formal specifications, and refinement steps that show relationships between these specifications.
       More specifically, we define how we expect the UDP layer to
       work in an abstract specification, describing
       what behaviors are acceptable and which are not.
@@ -145,23 +141,28 @@ literate=
 \mainmatter
 
 \chapter{Introduction}
-% TODO: from Alain: "Reference for a study that shows bugs in file system implementation does not die down over time: Lanyue Lu et al. "A study of Linux File System Evolutiion," FAST 2013, see 6th paragraph of introduction. The handle for this entry in my bibtex database is "Lanyue2013 Study."
 
 \section{Background and motivation}
 
-Modern life is full of computer systems,
-many of whose failure would have catastrophic consequences.
-A familiar example would be self-driving cars.
-Others include satellites and medical equipment, and even the software systems necessary for regular operation of standard cars.
-It is important that such systems function correctly, without any
-unexpected errors or bugs.
+Modern life is full of computer systems.
+Many such systems' failure would have catastrophic consequences---for instance,
+failures in onboard software in cars, satellites, and medical equipment
+could result in death or injury.
+In these cases, the critical question is ``how do we know the software
+will always behave as expected, without failure?''
 
 Famously, it is exceedingly difficult to remove all bugs
 from any piece of software.
-In the linux kernel, for instance, people are frequently finding bugs
-introduced early in the development process that evaded detection until recently
+In the linux kernel, for instance, bugs
+introduced early in the development process
+have evaded detection until recently
 (\cite{Amlogic2016S905}).
-Furthermore, testing is not sufficient to eradicate all bugs.
+Likewise, we cannot assume that as a software's lifecycle continues,
+progressive bug patches will cause it to converge to a correct form.
+A study of linux filesystems found no real decrease
+in the number of bugs over time (\cite{lu2013study})---for every bug fixed,
+as many new bugs were introduced.
+Furthermore, testing is also not sufficient to eradicate all bugs.
 As Dijkstra said, ``Testing shows the presence, not the absence of bugs''
 (\cite{dijkstra-quote}).
 A more effective solution is formal verification.
@@ -169,38 +170,33 @@ A more effective solution is formal verification.
 The goal of formal verification is to use rigorous mathematical statements
 to prove that a piece of software works correctly, without bugs.
 For our purposes, we will further require that these statements be
-done in a proof engine, which is a computational tool for 
+done in a proof engine, which is a computational tool for
 automatically checking proofs.
 This greatly reduces the chance of human error,
-% TODO: note that in one way it eliminates the chance of human error, but also since the interactive theorem prover (ITP) may also have errors, it has problems.
 and provides the added benefit that small changes in the statements made
 may be accommodated for by the proof engine.
 Software frequently is updated or changed, so the ability for proofs
 to be adaptable to changes in software is very useful.
 The proof engine used in this thesis is Isabelle (\cite{wenzel2008isabelle}).
 
-% TODO: next paragraph wordy. Consider reorganizing
-Prior to 2009, proofs of functional low-level systems were
-infeasible for software.
-This is due largely to the fact that low-level systems consist of
-an application or set of applications that interface with
-a microkernel (similar to an operating system, but more minimal),
-which in turn interfaces with hardware.
-Prior to this time there did not exist a verified microkernel
+Prior to 2009, it was infeasible to prove functional correctness of
+low-level systems.
+This is due largely to the fact that low-level systems
+encompass both hardware, and the microkernel or operating system,
+requiring verification at several levels.
+In fact, prior 2009, there did not exist a verified microkernel
 that was suitable for real-world use.
-Hence, even if the application worked correctly,
+Hence, even if a low-level application was correct,
 there were likely bugs in the microkernel that prevented the low-level system
 as a whole from functioning correctly.
 
 In 2009 the seL4 microkernel was released as the first real-world usable
 microkernel to be formally verified (\cite{Klein2014Verification}).
-% TODO: is this the right citation?
 This allowed for a new field of ``ground-up'' verification,
 where low-level systems could be verified all the way down to the hardware level.
 
 This project sits within the context of seL4, and
-continues work by \cite{kaegi-early}.
-% TODO: Probably the best reference is "Wilde2024Network" found in my bibtex database.
+continues work by \cite{Wilde2024Network}.
 The end goals of this project are 1) to produce a fully functional
 networked temperature sensor which records data from a fish tank
 and sends that data over the network where it will be recorded externally, and 2)
@@ -250,7 +246,7 @@ it to break or report incorrect data (barring physical malfunctions of the hardw
         \draw [arrow] (udp_unwrap) -- (app_unwrap);
     \end{tikzpicture}
 
-    
+
     \caption{A simplified version of the OSI model.
     The Open Systems Interconnection (OSI) model provides a high-level description of the standard
 implementation of the network stack.
@@ -266,10 +262,9 @@ The network stack is divided into logical layers, as seen in figure~\ref{fig:net
 Each layer has a plain-language specification
 consisting of either a Request For Comment (RFC) or an IEEE document
 that describes the standard interface for interacting with that layer.
-At a minimum, each layer contains a \textit{wrap} and an \textit{unwrap}
-% TODO: note that these are our terms, not standard.
-endpoint, though more functionality is needed for other important processes such as
-% TODO: from Alain: 'endpoint' may be dangerous to use because it may be mentioned in the Ethernet spec to mean a computjer attached to the network. 'Functionality' perhaps?
+At a minimum, each layer defines how to
+\textit{wrap} and an \textit{unwrap} packets,
+though more functionality is needed for other important processes such as
 addressing.
 As such, we can think of the network stack as a series of composable
 encoders and decoders,
@@ -282,13 +277,13 @@ and sent over the physical transmission medium, decoding it should
 result in the same packet of data, unaltered.
 One of the principal design features of the OSI model is that since
 it is layered, this statement need only apply within a particular layer.
-That is, we expect that if we call
-\lstinline{y := udp_wrap(x)}, then \lstinline{z := udp_unwrap(y)} should
+That is, we expect that if we execute the statement
+\lstinline{y := udp_wrap(x)}, then the statement
+\lstinline{z := udp_unwrap(y)} should
 result in the unwrapped packet of data \lstinline{z} being exactly equal to
 the initial packet of data \lstinline{x}.
-If we treat them as functions, we can say that \lstinline{udp_unwrap} is 
-the \textit{inverse function} of \lstinline{udp_wrap}.
-% TODO: is this notation understandable? Feels somewhat clunky.
+If we treat them as functions, we can say that \lstinline{udp_unwrap} is
+the \textit{right inverse} of \lstinline{udp_wrap}.
 
 \subsection{UDP}
 \begin{figure}[htb]
@@ -308,16 +303,15 @@ the \textit{inverse function} of \lstinline{udp_wrap}.
 
                       User Datagram Header Format
 \end{lstlisting}
-    % TODO: from Alain: remove space before comma.
-    \caption{The format , taken from RFC 768 (\cite{rfc768})}
+    \caption{The format of a wrapped UPD packet, taken from RFC 768 (\cite{rfc768})}
     \label{fig:udp-wrap-rfc}
 \end{figure}
-The primary endpoint we consider in this thesis is
-% TODO: note that 'endpoint' is reserved for other cases. Find a different word.
-the wrap endpoint of the UDP,
-seen in the transport layer (second layer) of figure~\ref{fig:network-stack}.
-UDP wrap takes as input data passed from the application layer (top layer in figure~\ref{fig:network-stack}).
-% TODO: from the father: "I feel like it would be nice to explain UDP here"
+In this thesis, we primarily consider
+the wrap transformation of UDP (a protocol which is responsible for
+handling packets sent to or from different applications on the same machine),
+which can be seen in the transport layer (second layer) of
+figure~\ref{fig:network-stack}.
+UDP wrap takes as input data passed from the application layer (top layer in figure~\ref{fig:network-stack}), and outputs data suitable for the network layer.
 In our case of a networked fish tank thermometer, UDP wrap will receive the raw temperature data as an input.
 The format of results of UDP wrap is shown in figure~\ref{fig:udp-wrap-rfc};
 encoding in the UDP layer consists of prepending a header
@@ -344,11 +338,9 @@ as well as storage of data within
 a single PD
 (see cyan and green boxes at bottom of figure~\ref{fig:sel4-mem-pd}).
 Additionally, seL4 provides an application programming interface (API) for notifications,
-% TODO: check if this is base seL4 or microkit
 whereby a PD can notify a second PD, and the second can,
 on receipt of that notification, execute some command.
 
-% TODO: make sure this all sounds good
 \begin{figure}[h]
     \centering
     \scalebox{0.8}{
@@ -362,8 +354,8 @@ on receipt of that notification, execute some command.
         \node (mem0) [cell, fill=blue!80] {\LARGE shared memory region};
         \node (PD1) [cell, fill=cyan!80, below left=20pt of mem0] {\LARGE Protection Domain};
         \node (PD2) [cell, fill=green!80, below right=20pt of mem0] {\LARGE Protection Domain};
-        \node (mem1) [cell, fill=cyan!80, below=60pt of PD1] {\LARGE memory region}; 
-        \node (mem2) [cell, fill=green!80, below=60pt of PD2] {\LARGE memory region}; 
+        \node (mem1) [cell, fill=cyan!80, below=60pt of PD1] {\LARGE memory region};
+        \node (mem2) [cell, fill=green!80, below=60pt of PD2] {\LARGE memory region};
         \node [color=red] at (0, -150pt) {blocked access};
         \node [color=green!200] at (-115pt, -180pt) {good access};
 
@@ -396,18 +388,17 @@ need only be relaxed within those shared memory regions, where
 data can be written or read from either of the adjacent layers at any time.
 This case will necessitate some proof that the behaviors of the two layers
 do not interfere within this shared region.
-Standardizing information flow using a system of queues along with 
+Standardizing information flow using a system of queues along with
 communicating sequential processes (\cite{csp})
-% TODO: from the father: "are there extra parenthesis associated with citations that need to be removed?"
 will likely be useful in this case.
 
-% TODO: from the father: I suggest a new section here called "This work" or "Project Goals" or some such. Here say this: The goal of this thesis is to provide proofs and definitions for the UDP layer. Specifically, our goal is to show that given such conditions, our implementations of the UDP layer will always function correctly.
+\section{Project goals}
+The goal of this thesis is to provide proofs and definitions for the UDP layer. Specifically, our goal is to show that, given such conditions, our implementations of the UDP layer will always function correctly.
 
 \chapter{Simplifying assumptions}
-% TODO: from Alain: I'm still not in love with 'endpoints'. I'm not sure if 'functionality' is better. 'function', 'process', ...?
 \section{State}
-While on a high level, the wrap endpoints can be thought of as
-functions taking in a packet of data from the layer above, and outputting a 
+While on a high level, wrap and unwrap can be thought of as
+functions taking in a packet of data from the layer above, and outputting a
 new packet of data suitable for the layer below,
 in fact implementing them as pure functions in this manner
 is impractically slow when run on hardware.
@@ -418,11 +409,11 @@ as all subsequent data will remain the same.
 
 As an alternative, we can model each component of the network stack
 as an \textit{imperative program} that changes the \textit{state} of the computer
-(the value of each variable or location in memory). 
+(the value of each variable or location in memory).
 A general definition of a program is shown in figure~\ref{fig:prog-def-det-nondet} as \lstinline{program}.
 Here, \lstinline{udp_wrap} (a program) will take as input the current state,
-expecting the temperature data from the application layer to be included within state in some prescribed way.
-% TODO: from Alain: "within that state" or "within the state"
+expecting the temperature data from the application layer to be included
+within that state in some prescribed way.
 Subsequently, \lstinline{udp_wrap} will modify the state so that just before the
 temperature data lies the UDP header.
 This modified state is the output of \lstinline{udp_wrap}.
@@ -456,19 +447,16 @@ To rectify this, we make several assumptions about how state can be transformed.
 
 Since seL4 is verified, there exist proofs that the microkernel
 will behave reasonably---that is, any interruptions to program execution
-happen in a well-defined way, and as discussed above, memory access must
-% TODO: from Alain: "memory access *rights* must ..."
-be explicitly specified.
+happen in a well-defined way, and as discussed above, memory access rights
+must be explicitly specified.
 This means that in seL4, only the PDs with explicit access to
 shared memory regions can possibly influence the state of another PD.
 
 While we eventually intend to invoke the seL4 proofs to show that any
 transformation of state by other PDs will happen in expected ways
-that do not cause issues,
-% TODO: from Alain: remove "that do not cause issues,"
 for this thesis we make the assumption that
-only the UDP wrap program can influence state, and will run without interruption.
-% TODO: from Alain: UDP wrap AND UDP unwrap.
+only the UDP wrap and UDP unwrap programs can influence state,
+and will run without interruption.
 This is equivalent to assuming that the UDP wrap program runs within
 a PD without any shared memory regions, and that the seL4 microkernel itself
 will not modify our program's state nor meaningfully interrupt execution.
@@ -476,16 +464,13 @@ Additionally, we assume that all memory accesses performed in the execution of
 the UDP wrap program will succeed, and not trap or fault.
 % TODO: this is clunky
 
-The goal of this thesis is to provide proofs and definitions for the UDP
-% TODO: from the father: "Say this in the introduction!"
-layer.
-As such, we will not consider the execution of any lower layer, nor
-the transmission of data over physical wires.
+Lastly,
+we will not consider the execution of any layer lower than the transport layer,
+nor the transmission of data over physical wires.
 Rather, we assume that no packets of data will be dropped, corrupted, or received in
 a different order than sent.
 Our goal is to show that given such conditions,
 our implementations of the UDP layer will always function correctly.
-% TODO: from the father: "Say this in the introduction!"
 
 \subsection{C compiler and hardware}
 As described in RFC 768, the UDP specification precisely describes
@@ -506,19 +491,12 @@ and it is also possible to perform proofs on a set of compiled instructions
 but such considerations are beyond the scope of the current project.
 % TODO: mention unspecified C behavior?
 
-Finally, as all of our proofs and definitions are expressed within the Isabelle 
-assume Isabelle works correctly (it has a proven core)
-% TODO: from Alain: missing period.
+Finally, as all of our proofs and definitions are expressed within the Isabelle
+assume Isabelle works correctly (it has a proven core).
 
 \chapter{Results}
-\section{Proof architecture}
-To understand the process of formal verification,
-it is necessary to discuss the structure of our proofs.
-Our proof architecture was inspired by that of seL4.
-% TODO: reads a little odd. I'd like to have a longer paragraph, I think?
-% TODO: from Alain: consider active voice? "seL4 inspired our proof architecture."
 
-\subsection{Overview}
+\section{Overview}
 \begin{figure}[h]
     \centering
     \begin{tikzpicture}[node distance=4cm, every node/.style={scale=1.3}]
@@ -531,19 +509,18 @@ Our proof architecture was inspired by that of seL4.
         \node (abstract) [cell, fill=cyan!80] {\LARGE abstract specification};
         \node (invs) [cell, fill=orange!80, right=120pt of abstract] {\LARGE invariants};
         \node (design) [cell, fill=green!80, below=140pt of abstract] {\LARGE design specification};
-        
+
         % \node [color=red] at (0, -150pt) {blocked access};
         % \node [color=green!200] at (-115pt, -180pt) {good access};
 
         % flow of information
-        \draw [arrow] (abstract) -- (design) node[midway, left] {\rotatebox{90}{refines}};
+        \draw [arrow] (design) -- (abstract) node[midway, left] {\rotatebox{90}{refines}};
         \draw [arrow] (invs) -- (abstract) node[midway, above] {always true for};
     \end{tikzpicture}
     \caption{Depiction of the proof architecture explored in this thesis.
     A high-level description of what \lstinline{udp_wrap} should do
     is described in code in the abstract specification.
-    An more concrete implementation which makes some assumptions about hardware
-    % TODO: from Alain: "An" -> "A"
+    A more concrete implementation which makes some assumptions about hardware
     is then defined in the design specification.
     Desirable qualities of \lstinline{udp_wrap} are described as invariants,
     which apply to the abstract specification.
@@ -552,9 +529,8 @@ Our proof architecture was inspired by that of seL4.
     should refine the abstract specification.
     }
     \label{fig:proof-structure-abstract-design}
-    % TODO: from peter: In Figure 3.1, if invariants are always true for the abstract specification, and the design specification refines the abstract specification, the "refines" arrow seems like it should point the other way. This would allow someone to read the "sentence" in the order <source box> <arrow> <destination box>, and is consistent with UML class diagrams. If you wish to keep the arrows moving in this direction to show the "flow of truth", then perhaps the second arrow should be relabeled "is refined by".
 \end{figure}
-The proof architecture we present in this thesis is structured into 
+The proof architecture we present in this thesis is structured into
 two overarching divisions: specifications and proofs.
 Specifications precisely define how a software works.
 In our case, we have two specifications for UDP wrap.
@@ -572,11 +548,11 @@ be true. These are used to show that our specification does what we want it to
 do. In our case, the statement that UDP unwrap should be the inverse of UDP wrap
 is an invariant,
 since it should always be true regardless of what data is being sent.
-Refinement is the process of showing that the design specification 
+Refinement is the process of showing that the design specification
 corresponds to the abstract specification.
 Specifically, refinement states that every possible result of the design
 specification is an allowed result of the abstract specification.
-Since we know from the invariant that the abstract specification 
+Since we know from the invariant that the abstract specification
 works the way we want it to, through refinement we know
 that the design specification also works the way we want it to.
 
@@ -603,10 +579,9 @@ definition dst :: "connection $\Rightarrow$ socket" where "dst c $=$ snd(c)"
     \caption{Basic definitions for our UDP abstract specification.
         Fundamental types in the network stack are defined,
         including messages and connections.
-        Additionally, helper functions are provided to facilitate 
+        Additionally, helper functions are provided to facilitate
         the extraction of source and destination sockets from a connection.}
     \label{fig:defs-abstract}
-    % TODO: we imply that UDP uses IP address, when it need not here.
 \end{figure}
 
 Additionally, we define the routing information used throughout the
@@ -615,6 +590,10 @@ Network communication is done over a connection,
 which is uniquely defined by a source and destination socket
 (see lines 5,6, and 7 in figure~\ref{fig:defs-abstract}).
 A socket consists of an IP address and a port number (line 4 of figure~\ref{fig:defs-abstract}), both of which are again natural numbers.
+Note that here, we assume
+that UPD will be used in conjunction with IP,
+hence the inclusion of an IP address.
+
 
 We define the abstract UDP wrap using the pure function approach:
 UDP wrap should take in a message from the application layer above,
@@ -650,8 +629,7 @@ definition udp_wrap :: "message $\Rightarrow$ connection $\Rightarrow$ message" 
         The function creates the header from the connection information,
         and then returns
         the header, presented as a list of computed natural numbers,
-        appended via that $@$ operator with the input message
-        % TODO: from Alain: "via THE @ operator
+        appended via the $@$ operator with the input message
         \lstinline{msg}.
     }
     \label{fig:wrap-abstract}
@@ -694,8 +672,7 @@ Words are defined here using the Isabelle Word library
 (\cite{Word_Lib-AFP}).
 
 Worthy to note here is that many fields are too large to fit into
-a single atom of the message
-% TODO: from Alain: add a period.
+a single atom of the message.
 For instance, the message consists of a list of
 8-bit bytes, while a port consists of a 16-bits.
 This means that some additional helper functions are needed
@@ -746,7 +723,7 @@ where "udp_wrap_d msg conn $\equiv$ (let
 
 The definition for UDP wrap in the design specification is
 again very similar to the definition in the abstract specification.
-One of the more notable differences is 
+One of the more notable differences is
 that rather than expressing the header as a list of natural numbers,
 we must instead express it as result of several list appends,
 as seen in lines 13 through 17 of figure~\ref{fig:wrap-design}.
@@ -763,7 +740,6 @@ to compute the length field.
 
 \begin{figure}[htpb]
     \centering
-    % TODO: some weird line breaks caused by the color boxes
 \begin{lstlisting}[language=isabelle]
 lemma "
 &\color{green!200}{\{precondition\}}&
@@ -771,7 +747,7 @@ lemma "
 &\color{blue!180}{\{postcondition\}}&
     "
 \end{lstlisting}
-    
+
     \caption{Structure of a Hoare Triple.
         This statement is read as
         ``assuming {\color{green!200}precondition} is true,
@@ -781,23 +757,22 @@ lemma "
     \label{fig:hoare-triple-structure}
 \end{figure}
 
-We present all invariants as Hoare triples (\cite{hoare-triple}), which is a 
+We present all invariants as Hoare triples (\cite{hoare-triple}), which is a
 statement on a state-transforming imperative program.
 Hoare triples are of the form shown in figure~\ref{fig:hoare-triple-structure},
 and consist of a precondition, a terminating program, and a postcondition.
 In this context, a program is defined as in figure~\ref{fig:prog-def-det-nondet},
 and takes as input an initial state, executes some computations, then returns
 an output state.
-Additionally, the precondition operates on the initial state, while the 
+Additionally, the precondition operates on the initial state, while the
 postcondition operates on the final state.
 For this thesis, all Hoare triples are formulated using the HOL-Hoare
 library in Isabelle (\cite{hol-hoare-lib}).
 
 
 In this thesis, we have focused on defining the UDP wrap functionality,
-and have not discussed the UDP unwrap endpoint at length.
-% TODO: from Alain: endpoint...
-Hence, we will provide the statement of an invariant 
+and have not discussed UDP unwrap at length.
+Hence, we will provide the statement of an invariant
 that UDP unwrap is the inverse of UDP wrap, but not prove it.
 This statement is presented in figure~\ref{fig:inv-unwrap-wrap}.
 
@@ -867,8 +842,7 @@ or meaningful, not specify exactly what the behavior is.
 
 \section{Refinement}
 
-The largest part of our proof is refinement, where we show that
-% TODO: from Alain: proofs? (make it plural, you have it in plural in section 3.1 after all.)
+The largest part of our proofs is refinement, where we show that
 the design specification is a valid implementation of the abstract specification.
 Continuing from the description of refinement above,
 when we say that the design specification of UDP wrap refines the
@@ -893,7 +867,7 @@ split:        "(relation_message' ms1 ms1' $\land$
                relation_message' (ms1 $@$ ms2) (ms1' $@$ ms2')" |
 step_combine: "((m2' $<$ 2^8) $\land$
                 (m = m1' $*$ 2^8 $+$ m2) $\land$
-                (relation_message' ms ms')) $\Longrightarrow$ 
+                (relation_message' ms ms')) $\Longrightarrow$
                (relation_message' (m $\#$ ms) (m1' $\#$ m2' $\#$ ms'))"
 definition relation_message :: "message $\Rightarrow$ message_d $\Rightarrow$ bool" where
   "relation_message ms ms' = (relation_message' ms (map unat ms'))"
@@ -959,8 +933,7 @@ For port numbers, we can directly convert from 16-bit word port numbers in the d
 to natural numbers in the abstract specification.
 For IP addresses, it is slightly more complicated, since in the design specification,
 an IP address is represented as a sequence of 8 16-bit words, rather than one 128-bit word.
-As such, we offset each word in the sequence by 8 bits by multiplying by powers of $2^16$,
-% TODO: from Alain: 2^{16}, not 2^16.
+As such, we offset each word in the sequence by 8 bits by multiplying by powers of $2^{16}$,
 which results in a single natural number which can be directly compared to the abstract specification.
 
 \begin{figure}[ht]
@@ -985,7 +958,7 @@ theorem refinement:
       msg)
      (porttomsgd (Network_D.port (Network_D.src conn_d)) @
       porttomsgd (Network_D.port (Network_D.dst conn_d)) @
-      w16tomsg (word_of_nat (length msg_d) + 
+      w16tomsg (word_of_nat (length msg_d) +
                 word_of_nat Network_Consts.udp_hdr_sz) @
       w16tomsg 0 @
       msg_d)"
@@ -993,7 +966,7 @@ theorem refinement:
     by fastforce
 \end{lstlisting}
     \caption{Formal statement of refinement. Proof partially omitted due to length.
-    The format of the proof uses the Isar-style of describing the assumptions and 
+    The format of the proof uses the Isar-style of describing the assumptions and
     goal of a theorem.
     Here, we show that if the abstract and design messages are the same length and are related,
     and the design and abstract connections are related, then
@@ -1042,8 +1015,6 @@ we have experimented with converting C code into SIMPL, an imperative
 language defined in Isabelle.
 The conversion process (seen in figure~\ref{fig:convert-c}) was created for use
 in seL4, and is formally verified.
-% TODO: from Alain: close parenthesis
-% TODO: I think Alain's wrong on this one.
 
     \begin{figure}
         \centering
@@ -1053,19 +1024,17 @@ in seL4, and is formally verified.
             \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=3cm, text centered, draw=black]
             \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
             \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
-    
+
             % wrap
             \node (abstract) [cell, fill=cyan!80] {\LARGE abstract specification};
             \node (invs) [cell, fill=orange!80, right=120pt of abstract] {\LARGE invariants};
             \node (design) [cell, fill=green!80, below=60pt of abstract] {\LARGE design specification};
-            \node (cspec) [cell, fill=lavender!80, below=60pt of design] {\LARGE c specification};
-            % TODO: from Alain: capitalize C
-            \node (ccode) [cell, fill=lavender!80, right=120pt of cspec] {\LARGE c code};
-            % TODO: from Alain: capitalize C
-            
+            \node (cspec) [cell, fill=lavender!80, below=60pt of design] {\LARGE C specification};
+            \node (ccode) [cell, fill=lavender!80, right=120pt of cspec] {\LARGE C code};
+
             % \node [color=red] at (0, -150pt) {blocked access};
             % \node [color=green!200] at (-115pt, -180pt) {good access};
-    
+
             % flow of information
             \draw [arrow] (abstract) -- (design) node[midway, left] {\rotatebox{90}{refines}};
             \draw [arrow] (design) -- (cspec) node[midway, left] {\rotatebox{90}{refines}};
@@ -1097,18 +1066,16 @@ context of these proofs.
 It bears mentioning that the abstract specification is unwieldy
 compared to the design specification
 when it comes to IP addresses---Isabelle represents natural numbers using standard
-Peano axioms, % TODO: need citation
+Peano axioms,
 which require increased computational power proportional to the magnitude of the number.
-As such, numbers on the order of $2^128$ are too large for most if not all computers.
-% TODO: from Alain: 2^{128}
-Numbers on the order of only $2^16$, however, are manageable even when simultaneously
-% TODO: from Alain: 2^{16}
+As such, numbers on the order of $2^{128}$ are too large for most if not all computers.
+Numbers on the order of only $2^{16}$, however, are manageable even when simultaneously
 using eight of them.
-Consequently, it is computationally infeasible to, say, convert the design IP address
-$(1,2,3,4,5,6,7,8)$ to an abstract IP address.
+Consequently, it is not feasible to convert the design IP address
+$(1,2,3,4,5,6,7,8)$ to a single natural number as we expect abstract IP addresses
+to be.
 This poses no issues for the UDP layer, which need not manipulate IP addresses,
-but could pose problems when extending 
-% TODO: from Peter: On p. 19, the penultimate paragraph seems to end mid-sentence.
+but could pose problems when extending to the IP layer.
 
 The approach used here of specifications, invariants, and refinement
 has been successful for our scope of verification of UDP wrap.
@@ -1117,15 +1084,12 @@ it is promising that it seems to apply to our use case of a networked temperatur
 We hope to extend our refinement to the level of C code, and further expand to other parts of the
 network stack in future work.
 
-\chapter{Future Work}
-% TODO: from Alain: lowercase 'work'
+\chapter{Future work}
 As stated, the likely next step for the eventual verification of a networked temperate sensor
 is to verify that C code refines an abstract specification.
-As discussed above, this presents several additional challenges, and will
-% TODO: from Alain: "earlier" or "in a previous chapter/section"
+As earlier, this presents several additional challenges, and will
 likely require a number of new assumptions, including assumptions about
-hardware correctness, correctness of the C compiler, and assumptions about the function of seL4.
-% TODO: from Alain: "functions"?
+hardware correctness, correctness of the C compiler, and assumptions about the functions of seL4.
 
 Several particularly difficult but fruitful possibilities lie in a close examination of
 seL4's PDs.
@@ -1138,8 +1102,7 @@ or if they can be combined into a single large PD, thus achieving better perform
 Additionally, we will likely encounter new challenges when attempting to verify
 other layers of the network stack beyond the UDP layer.
 For instance, as discussed above, large IP address numbers are unlikely to be usable
-in our present definition of the abstract specification.
-% TODO: from Alain: do you mean above on this page or in a previous section?
+in the earlier definition of the abstract specification.
 However, certain IP addresses are reserved, and have special meanings or use as defined in
 the corresponding RFC documents.
 This could cause issues where the abstract specification must define a particular constant
@@ -1200,7 +1163,7 @@ Furthermore, the ADRefine session must explicitly list ASpec and DSpec as requir
         │   └── Word_Network.thy
         └── ROOT
     \end{lstlisting}
-    
+
     \caption{Example directory structure}
     \label{fig:isabelle-roots-file}
 \end{figure}
@@ -1220,7 +1183,7 @@ session DSpec in "Dspec" = HOL +
     "Network_D"
     "Udp_D"
     \end{lstlisting}
-    
+
     \caption{Example ROOT file in the spec/ directory. Two sessions are created: ASpec (an abstract specification) and DSpec (a design specification).}
     \label{fig:isabelle-root-file-spec}
 \end{figure}
@@ -1235,15 +1198,12 @@ session RefineAD in "RefineAD" = HOL +
   theories
     "Relation"
     \end{lstlisting}
-    
+
     \caption{Example ROOT file in the proof/ directory. Note that the RefineAD session relies on the ASpec and DSpec sessions defined in a different ROOT file (in our case, located in the spec/ directory).}
     \label{fig:isabelle-root-file-proof}
 \end{figure}
 
-\section{Installation notes}
-% TODO: from Alain: text for this section?
-
-% For the bibliography style, I load `sp.bst', the style used by the LSA in the journal `Semantics and Pragmatics'. For how to include in-line citations with page numbers and other conventions, refer to nus-el-ht.sty. 
+% For the bibliography style, I load `sp.bst', the style used by the LSA in the journal `Semantics and Pragmatics'. For how to include in-line citations with page numbers and other conventions, refer to nus-el-ht.sty.
 \backmatter
 \bibliography{el-ht.bib}
 \end{document}
