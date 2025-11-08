@@ -1,0 +1,133 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage[usenames,dvipsnames]{color}    
+\usepackage[table]{xcolor}
+\usepackage{themecolors}
+\usepackage{tikz} 
+\usetikzlibrary{positioning, shapes.multipart, arrows, arrows.meta, shadows, backgrounds, fit}
+
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\begin{document}
+    
+    \begin{figure}
+        \centering
+        \scalebox{0.6}{
+        \begin{tikzpicture}[node distance=4cm]
+            % styles
+            \tikzstyle{cell} = [rectangle, minimum width=5.4cm, minimum height=3cm, text centered, draw=black]
+            \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+            \tikzstyle{box} = [draw, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+    
+            % wrap
+            \node (abstract) [cell, fill=ttorange!80] {\LARGE abstract specification};
+            \node (invs) [cell, fill=ttred!80, right=140pt of abstract] {\LARGE invariants};
+            \node (cspec) [cell, fill=ttyellow!80, below=90pt of abstract] {\LARGE C specification};
+            % TODO: from Alain: capitalize C
+            \node (ccode) [cell, fill=ttyellow!80, right=140pt of cspec] {\LARGE C code};
+            % TODO: from Alain: capitalize C
+            
+            % \node [color=red] at (0, -150pt) {blocked access};
+            % \node [color=green!200] at (-115pt, -180pt) {good access};
+    
+            % flow of information
+            \draw [arrow] (cspec) -- (abstract) node[midway, left] {\huge \rotatebox{90}{refines}};
+            \draw [arrow] (abstract) -- (invs) node[midway, above] {\huge satisfies};
+            \draw [arrow] (ccode) -- (cspec) node[midway, above] {\huge translates to};
+        \end{tikzpicture}}
+        \caption{Updated proof architecture, including C code and a C specification.}
+        \label{fig:proof-structure-c}
+    \end{figure}
+
+
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[node distance=4cm]
+        % styles
+        \tikzstyle{cell} = [rectangle, minimum width=4.6cm, minimum height=1cm, text centered, draw=black]
+        \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=black]
+        \tikzstyle{box} = [draw, fill=ttbggrey2, rectangle, align=center, minimum width=11cm, inner sep=3ex]
+
+        \begin{pgfonlayer}{foreground}
+        % wrap
+        \node (app_wrap) [cell, fill=ttred!80] {Application on Computer A};
+        \node (udp_wrap) [cell, fill=ttorange!80, below=30pt of app_wrap] {UDP wrap};
+        \node (ip_wrap) [cell, fill=ttyellow!80, below=30pt of udp_wrap] {IP wrap};
+        \node (ethernet_wrap) [cell, fill=ttgreen!80, below=30pt of ip_wrap] {Ethernet wrap};
+        \node (hardware_wrap) [cell, fill=ttblue!80, below=30pt of ethernet_wrap] {Hardware};
+
+        % unwrap
+        \node (app_unwrap) [cell, fill=ttred!80, right=14pt of app_wrap] {Application on Computer B};
+        \node (udp_unwrap) [cell, fill=ttorange!80, below=30pt of app_unwrap] {UDP unwrap};
+        \node (ip_unwrap) [cell, fill=ttyellow!80, below=30pt of udp_unwrap] {IP unwrap};
+        \node (ethernet_unwrap) [cell, fill=ttgreen!80, below=30pt of ip_unwrap] {Ethernet unwrap};
+        \node (hardware_unwrap) [cell, fill=ttblue!80, below=30pt of ethernet_unwrap] {Hardware};
+        \end{pgfonlayer}
+
+        \begin{pgfonlayer}{background}
+        % layers
+        \node[box, label={left:\rotatebox{90}{Higher-level}}, fit = (app_wrap) (app_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Transport}}, fit = (udp_wrap) (udp_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Network}}, fit = (ip_wrap) (ip_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Data Link}}, fit = (ethernet_wrap) (ethernet_unwrap)] (1) {};
+        \node[box, label={left:\rotatebox{90}{Physical}}, fit = (hardware_wrap) (hardware_unwrap)] (1) {};
+        \end{pgfonlayer}
+
+
+
+        % flow of information
+        \draw [arrow] (app_wrap) -- (udp_wrap);
+        \draw [arrow] (udp_wrap) -- (ip_wrap);
+        \draw [arrow] (ip_wrap) -- (ethernet_wrap);
+        \draw [arrow] (ethernet_wrap) -- (hardware_wrap);
+        \draw [arrow] (hardware_wrap) -- (hardware_unwrap);
+        \draw [arrow] (hardware_unwrap) -- (ethernet_unwrap);
+        \draw [arrow] (ethernet_unwrap) -- (ip_unwrap);
+        \draw [arrow] (ip_unwrap) -- (udp_unwrap);
+        \draw [arrow] (udp_unwrap) -- (app_unwrap);
+    \end{tikzpicture}
+
+
+    \caption{A simplified version of the OSI model.
+    The Open Systems Interconnection (OSI) model provides a high-level description of the standard
+implementation of the network stack.
+Shown here are the wrap and unwrap components of each layer. Arrows show flow of data. Session, presentation, and application layers are combined into a single ``higher-level'' layer---these layers are unnecessary for our use case of a simple thermometer.}
+    \label{fig:network-stack}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \scalebox{0.65}{
+    \begin{tikzpicture}[
+    dot/.style = {circle, fill, minimum size=#1,
+                  inner sep=0pt, outer sep=0pt},
+    dot/.default = 6pt
+    ]
+            % styles
+            \tikzstyle{arrow} = [line width=2pt,->,>=latex,draw=gray]
+    
+            \node (abss) [dot=100pt, fill=ttorange!80,label=\huge abstract state space] {};
+            \node (abp) [dot, right=-40pt of abss] {};
+            \node (abss2) [dot=100pt, fill=ttorange!80,label=\huge abstract state space, right=100pt of abss] {};
+            \node (abpout) [dot=50pt, fill=ttgray!30, right=-70pt of abss2] {};
+            
+            \node (copout2) at (abpout) [dot=20pt, fill=ttgray2!90, right=-60pt of abss2] {};
+            
+            \node (coss) [dot=100pt, fill=ttyellow!80,label=below:\huge concrete state space, below=100pt of abss] {};
+            \node (cop) [dot, right=-40pt of coss] {};
+            \node (coss2) [dot=100pt, fill=ttyellow!80,label=below:\huge concrete state space, right=100pt of coss] {};
+            \node (copout) [dot=20pt, fill=ttgray!90, right=-60pt of coss2] {};
+    
+            \draw [arrow] (abp) -- (abpout) node[midway, above] {\large abstract program};
+            \draw [arrow] (cop) -- (copout) node[midway, above] {\large concrete program};
+            \draw [arrow, <->] (copout) -- (copout2) node[midway, right] {\large \rotatebox{90}{equivalent}};
+            \draw [arrow, <->] (abp) -- (cop) node[midway, right] {\large \rotatebox{90}{equivalent}};
+    \end{tikzpicture}}
+\end{figure}
+
+\end{document}
